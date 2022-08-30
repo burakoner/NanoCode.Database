@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netstandard2.1</TargetFramework>
+	  <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>NanoCode.Database</PackageId>
+		<Authors>Burak Öner</Authors>
+		<Version>1.0.6</Version>
+		<FileVersion>1.0.6</FileVersion>
+		<PackageVersion>1.0.6</PackageVersion>
+		<AssemblyVersion>1.0.6</AssemblyVersion>
+		<Description>Faster ORM tools using Dapper and low-level implementations</Description>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>NanoCode;Database;ORM;EF;Entity;Dapper;Sql;SqlServer;MsSql;Oracle;Postgre;PostgreSql;Sqlite;MySql;Redis</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<NeutralLanguage>en</NeutralLanguage>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageReleaseNotes>
+			Version 1.0.6 - 26 Aug 2022
+		</PackageReleaseNotes>
+		<PackageIcon>NanoCode.png</PackageIcon>
+		<PackageIconUrl />
+		<PackageProjectUrl>https://github.com/burakoner/NanoCode.Database</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/burakoner/NanoCode.Database</RepositoryUrl>
+	</PropertyGroup>
+	<ItemGroup>
+		<Folder Include="Icon\" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Icon\NanoCode.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>
