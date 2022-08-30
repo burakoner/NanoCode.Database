@@ -20,16 +20,12 @@ namespace NanoCode.Database
     public class NanoTableAttribute : Attribute
     {
         public string TableName { get; set; }
-        public bool ManualIdentityValue { get; set; }
-        public bool ScopeIdentity { get { return !this.ManualIdentityValue; } }
 
         public NanoTableAttribute()
         {
         }
-        public NanoTableAttribute(string tableName, bool manualIdentity = false)
+        public NanoTableAttribute(string tableName)
         {
-            this.TableName = tableName;
-            this.ManualIdentityValue = manualIdentity;
         }
     }
 
@@ -37,17 +33,36 @@ namespace NanoCode.Database
     public class PrimaryKeyAttribute : Attribute
     {
         public bool IsPrimaryKey { get; set; }
-        public PrimaryKeyAttribute(bool value = true)
+        public bool AutoIncrement { get; set; }
+        public PrimaryKeyAttribute(bool value = true, bool autoIncrement = true)
         {
             IsPrimaryKey = value;
+            AutoIncrement = autoIncrement;
+        }
+
+        public PrimaryKeyOptions ToPrimaryKeyOptions()
+        {
+            return new PrimaryKeyOptions
+            {
+                IsPrimaryKey = this.IsPrimaryKey,
+                AutoIncrement = this.AutoIncrement,
+            };
         }
     }
+
+    public class PrimaryKeyOptions
+    {
+        public bool IsPrimaryKey { get; set; }
+        public bool AutoIncrement { get; set; }
+    }
+
 
     [AttributeUsage(AttributeTargets.Property, Inherited = true)]
     public class NanoTableColumnAttribute : Attribute
     {
         public object DefaultValue { get; set; }
         public bool IsPrimaryKey { get; set; }
+        public bool AutoIncrement { get; set; }
         public bool IsIgnored { get; set; }
         public bool IsIgnoredOnInsert { get; set; }
         public bool IsIgnoredOnUpdate { get; set; }
@@ -59,6 +74,7 @@ namespace NanoCode.Database
                 {
                     DefaultValue = this.DefaultValue,
                     IsPrimaryKey = this.IsPrimaryKey,
+                    AutoIncrement = this.AutoIncrement,
                     IsIgnored = this.IsIgnored,
                     IsIgnoredOnInsert = this.IsIgnoredOnInsert,
                     IsIgnoredOnUpdate = this.IsIgnoredOnUpdate,
@@ -70,13 +86,14 @@ namespace NanoCode.Database
         {
         }
 
-
-        /*
-        public NanoTableColumnAttribute(string columnName, bool isPrimaryKey = false)
+        public PrimaryKeyOptions ToPrimaryKeyOptions()
         {
-            this.Options = new NanoTableColumnOptions(columnName, isPrimaryKey);
+            return new PrimaryKeyOptions
+            {
+                IsPrimaryKey = this.IsPrimaryKey,
+                AutoIncrement = this.AutoIncrement,
+            };
         }
-        */
     }
 
     public class NanoTableColumnOptions
@@ -92,10 +109,8 @@ namespace NanoCode.Database
         // public string Description { get; set; }
         public object DefaultValue { get; set; }
 
-        /// <summary>
-        /// Is Primary Key
-        /// </summary>
         public bool IsPrimaryKey { get; set; }
+        public bool AutoIncrement { get; set; }
 
         /// <summary>
         /// Insert ve Update işlemlerinde ignore edilen kolon gönderilmez
@@ -117,6 +132,16 @@ namespace NanoCode.Database
 
         public NanoTableColumnOptions()
         {
+        }
+
+
+        public PrimaryKeyOptions ToPrimaryKeyOptions()
+        {
+            return new PrimaryKeyOptions
+            {
+                IsPrimaryKey = this.IsPrimaryKey,
+                AutoIncrement = this.AutoIncrement,
+            };
         }
     }
 

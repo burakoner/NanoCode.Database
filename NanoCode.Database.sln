@@ -21,17 +21,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{82
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit Tests", "Unit Tests", "{C90060C3-C151-482C-A0B0-1BBF3ACD5E4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.Tests", "NanoCode.Database.Tests\NanoCode.Database.Tests.csproj", "{A9908138-AE06-422B-B7E5-2765F2DF35F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Tests", "NanoCode.Database.Tests\NanoCode.Database.Tests.csproj", "{A9908138-AE06-422B-B7E5-2765F2DF35F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.MySql.Tests", "NanoCode.Database.MySql.Tests\NanoCode.Database.MySql.Tests.csproj", "{E11A24D3-AB30-4DEA-86E6-B5E9B2ECF71E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.MySql.Tests", "NanoCode.Database.MySql.Tests\NanoCode.Database.MySql.Tests.csproj", "{E11A24D3-AB30-4DEA-86E6-B5E9B2ECF71E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.Oracle.Tests", "NanoCode.Database.Oracle.Tests\NanoCode.Database.Oracle.Tests.csproj", "{BB8BD6D4-3105-497C-AA29-CF7AA838D022}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Oracle.Tests", "NanoCode.Database.Oracle.Tests\NanoCode.Database.Oracle.Tests.csproj", "{BB8BD6D4-3105-497C-AA29-CF7AA838D022}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.PostgreSql.Tests", "NanoCode.Database.PostgreSql.Tests\NanoCode.Database.PostgreSql.Tests.csproj", "{90570A4B-AAFF-4318-9182-DD3A4F55DAB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.PostgreSql.Tests", "NanoCode.Database.PostgreSql.Tests\NanoCode.Database.PostgreSql.Tests.csproj", "{90570A4B-AAFF-4318-9182-DD3A4F55DAB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.Sqlite.Tests", "NanoCode.Database.Sqlite.Tests\NanoCode.Database.Sqlite.Tests.csproj", "{7FF26F06-9FFF-4A8E-BE33-31643948365E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Sqlite.Tests", "NanoCode.Database.Sqlite.Tests\NanoCode.Database.Sqlite.Tests.csproj", "{7FF26F06-9FFF-4A8E-BE33-31643948365E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.SqlServer.Tests", "NanoCode.Database.SqlServer.Tests\NanoCode.Database.SqlServer.Tests.csproj", "{18907A26-CF0E-4232-BB73-0587C0921B51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.SqlServer.Tests", "NanoCode.Database.SqlServer.Tests\NanoCode.Database.SqlServer.Tests.csproj", "{18907A26-CF0E-4232-BB73-0587C0921B51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanoCode.Database.Examples", "NanoCode.Database.Examples\NanoCode.Database.Examples.csproj", "{69026495-0357-43B4-B0D9-B9C34004B66F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{18907A26-CF0E-4232-BB73-0587C0921B51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18907A26-CF0E-4232-BB73-0587C0921B51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18907A26-CF0E-4232-BB73-0587C0921B51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69026495-0357-43B4-B0D9-B9C34004B66F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69026495-0357-43B4-B0D9-B9C34004B66F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69026495-0357-43B4-B0D9-B9C34004B66F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69026495-0357-43B4-B0D9-B9C34004B66F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{90570A4B-AAFF-4318-9182-DD3A4F55DAB8} = {C90060C3-C151-482C-A0B0-1BBF3ACD5E4B}
 		{7FF26F06-9FFF-4A8E-BE33-31643948365E} = {C90060C3-C151-482C-A0B0-1BBF3ACD5E4B}
 		{18907A26-CF0E-4232-BB73-0587C0921B51} = {C90060C3-C151-482C-A0B0-1BBF3ACD5E4B}
+		{69026495-0357-43B4-B0D9-B9C34004B66F} = {820AACE5-B221-405E-B35E-FACC4E174505}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8592E19E-8D32-413E-9DC9-AD5668D1C9D7}

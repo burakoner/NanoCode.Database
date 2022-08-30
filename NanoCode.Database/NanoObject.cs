@@ -25,10 +25,6 @@ namespace NanoCode.Database
             // Return
             return tableName;
         }
-        public bool ScopeIdentity()
-            => this.GetType().GetAttributeValue((NanoTableAttribute attr) => attr.ScopeIdentity);
-        public bool ManualIdentityValue()
-            => this.GetType().GetAttributeValue((NanoTableAttribute attr) => attr.ManualIdentityValue);
         public INanoCredentials GetDatabaseCredentials()
             => this.GetType().GetAttributeValue((NanoCredentialsAttribute attr) => attr.Credentials);
 
@@ -39,6 +35,10 @@ namespace NanoCode.Database
         }
 
         public PropertyInfo GetPrimaryKeyPropertyInfo()
+            => this.GetPrimaryKey().Info;
+        public PrimaryKeyOptions GetPrimaryKeyOptions()
+            => this.GetPrimaryKey().Options;
+        public (PropertyInfo Info, PrimaryKeyOptions Options) GetPrimaryKey()
         {
             foreach (var pi in this.GetType().GetProperties())
             {
@@ -53,18 +53,19 @@ namespace NanoCode.Database
                     if (attr.GetType().Name != nameof(PrimaryKeyAttribute))
                         continue;
 
-                    if (((PrimaryKeyAttribute)attr).IsPrimaryKey)
-                        return pi;
+                    var pka = (PrimaryKeyAttribute)attr;
+                    if (pka.IsPrimaryKey)
+                        return (pi, pka.ToPrimaryKeyOptions());
                 }
 
                 // NanoTableColumnAttribute
                 var options = this.GetColumnOptions(pi);
                 if (options != null && options.IsPrimaryKey)
-                    return pi;
+                    return (pi, options.ToPrimaryKeyOptions());
             }
 
             // Return
-            return null;
+            return (null, null);
         }
 
         public string GetDatabaseColumnName(PropertyInfo pi)
@@ -239,7 +240,8 @@ namespace NanoCode.Database
 
             // Execute
             var primaryKey = this.GetPrimaryKeyPropertyInfo();
-            if (this.ScopeIdentity() && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
+            var pkOptions = this.GetPrimaryKeyOptions();
+            if (!pkOptions.AutoIncrement && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
             {
                 object id = null;
                 sql += conn.DbConn.Helper.ScopeIdentity(primaryKey.PropertyType);
@@ -282,20 +284,12 @@ namespace NanoCode.Database
 
             // Action
             var primaryKey = this.GetPrimaryKeyColumnName();
-            var manualIdentity = this.ManualIdentityValue();
             var primaryKeyProperty = this.GetType().GetProperty(primaryKey);
             var primaryKeyType = primaryKeyProperty.PropertyType;
             var primaryKeyValue = primaryKeyProperty.GetValue(this);
+            var primaryKeyOptions = this.GetPrimaryKeyOptions();
 
-            if (manualIdentity)
-            {
-                // Insert
-                if (this.FlagForManualId) return this.SqlCommandForInsert();
-
-                // Update
-                else return this.SqlCommandForUpdate();
-            }
-            else
+            if (primaryKeyOptions.AutoIncrement)
             {
                 var isNull = primaryKeyValue == null;
                 var isDefault = false;
@@ -314,6 +308,14 @@ namespace NanoCode.Database
                 // Update
                 else return this.SqlCommandForUpdate();
             }
+            else
+            {
+                // Insert
+                if (this.FlagForManualId) return this.SqlCommandForInsert();
+
+                // Update
+                else return this.SqlCommandForUpdate();
+            }
         }
 
         private string SqlCommandForInsert()
@@ -326,7 +328,8 @@ namespace NanoCode.Database
             var columnNames = new List<string>();
             var columnValues = new List<string>();
             var primaryKey = this.GetPrimaryKeyColumnName();
-            var manualIdentity = this.ManualIdentityValue();
+            var primaryKeyOptions = this.GetPrimaryKeyOptions();
+
             foreach (var pi in this.GetType().GetProperties())
             {
                 // Check Point
@@ -334,7 +337,7 @@ namespace NanoCode.Database
                     continue;
 
                 // Check Point
-                if (!manualIdentity && primaryKey == pi.Name)
+                if (primaryKeyOptions.AutoIncrement && primaryKey == pi.Name)
                     continue;
 
                 // Check Column Options

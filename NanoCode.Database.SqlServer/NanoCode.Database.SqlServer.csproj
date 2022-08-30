@@ -8,10 +8,10 @@
 	<PropertyGroup>
 		<PackageId>NanoCode.Database.SqlServer</PackageId>
 		<Authors>Burak Öner</Authors>
-		<Version>1.0.6</Version>
-		<FileVersion>1.0.6</FileVersion>
-		<PackageVersion>1.0.6</PackageVersion>
-		<AssemblyVersion>1.0.6</AssemblyVersion>
+		<Version>1.1.0</Version>
+		<FileVersion>1.1.0</FileVersion>
+		<PackageVersion>1.1.0</PackageVersion>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
 		<Description>Faster ORM tools using Dapper and low-level implementations</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageTags>NanoCode;Database;ORM;EF;Entity;Dapper;Sql;SqlServer;MsSql;Oracle;Postgre;PostgreSql;Sqlite;MySql;Redis</PackageTags>
@@ -19,7 +19,7 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageReleaseNotes>
-			Version 1.0.6 - 26 Aug 2022
+			Version 1.1.0 - 30 Aug 2022
 		</PackageReleaseNotes>
 		<PackageIcon>NanoCode.png</PackageIcon>
 		<PackageIconUrl />
@@ -37,7 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="NanoCode.Database" Version="1.0.6" />
+    <PackageReference Include="NanoCode.Database" Version="1.1.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
