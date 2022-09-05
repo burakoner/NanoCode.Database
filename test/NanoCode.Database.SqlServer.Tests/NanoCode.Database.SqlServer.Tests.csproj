@@ -14,4 +14,8 @@
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NanoCode.Database.SqlServer\NanoCode.Database.SqlServer.csproj" />
+  </ItemGroup>
+
 </Project>

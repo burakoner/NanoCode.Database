@@ -14,4 +14,8 @@
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NanoCode.Database.Oracle\NanoCode.Database.Oracle.csproj" />
+  </ItemGroup>
+
 </Project>
