@@ -26,6 +26,7 @@ namespace NanoCode.Database
         }
         public NanoTableAttribute(string tableName)
         {
+            this.TableName = tableName;
         }
     }
 
