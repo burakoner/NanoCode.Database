@@ -74,7 +74,7 @@ namespace NanoCode.Database.MySql
 
             // Parse
             var host = "";
-            var port = 1433;
+            var port = 3306;
             var catalog = "";
             var username = "";
             var password = "";
