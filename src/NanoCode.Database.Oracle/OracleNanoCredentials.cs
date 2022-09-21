@@ -1,5 +1,8 @@
 ﻿using NanoCode.Database.Interfaces;
 using Newtonsoft.Json;
+using System.Linq;
+using System;
+using Newtonsoft.Json.Linq;
 
 namespace NanoCode.Database.Oracle
 {
@@ -8,28 +11,20 @@ namespace NanoCode.Database.Oracle
         [JsonIgnore]
         public static OracleNanoCredentials DefaultCredentials { get; private set; }
 
-        [JsonProperty("engine")]
         public DatabaseEngine Engine { get { return DatabaseEngine.Oracle; } }
 
-        [JsonProperty("host")]
         public string Host { get; set; }
 
-        [JsonProperty("port")]
         public int Port { get; set; }
 
-        [JsonProperty("database")]
-        public string Database { get; set; }
+        // public string Catalog { get; set; }
 
-        [JsonProperty("user")]
         public string Username { get; set; }
 
-        [JsonProperty("pass")]
         public string Password { get; set; }
 
-        [JsonProperty("service")]
         public string ServiceName { get; set; }
 
-        [JsonProperty("source")]
         public string DataSource { get; set; }
 
         [JsonIgnore]
@@ -38,9 +33,10 @@ namespace NanoCode.Database.Oracle
             get
             {
                 // Action
-                return $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={this.Host})(PORT={this.Port}))(CONNECT_DATA=(SERVICE_NAME={this.ServiceName})));" +
+                return
+                    (string.IsNullOrEmpty(DataSource) ? $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={this.Host})(PORT={this.Port}))(CONNECT_DATA=(SERVICE_NAME={this.ServiceName}))); " : $"Data Source={this.DataSource}; ") +
                     $"User Id={this.Username}; " +
-                    $"Password={this.Password};";
+                    $"Password={this.Password}; ";
             }
         }
 
@@ -48,11 +44,20 @@ namespace NanoCode.Database.Oracle
         {
         }
 
-        public OracleNanoCredentials(string host, int port, string catalog, string username, string password)
+        public OracleNanoCredentials(string connectionString)
+        {
+            var conn = ParseConnectionString(connectionString);
+
+            this.DataSource = conn.DataSource;
+            this.Username = conn.Username;
+            this.Password = conn.Password;
+        }
+
+        public OracleNanoCredentials(string host, int port, string service, string username, string password)
         {
             Host = host;
             Port = port;
-            Database = catalog;
+            ServiceName = service;
             Username = username;
             Password = password;
         }
@@ -60,6 +65,51 @@ namespace NanoCode.Database.Oracle
         public static void SetDefaultCredentials(OracleNanoCredentials credentials)
         {
             DefaultCredentials = credentials;
+        }
+
+        public static OracleNanoCredentials ParseConnectionString(string connectionString)
+        {
+            var dict = connectionString.Split(';')
+            .Where(kvp => kvp.Contains('='))
+            .Select(kvp => kvp.Split(new char[] { '=' }, 2))
+            .ToDictionary(kvp => kvp[0].Trim(), kvp => kvp[1].Trim(), StringComparer.InvariantCultureIgnoreCase);
+
+            // Parse
+            var datasource = "";
+            var username = "";
+            var password = "";
+            foreach (var kvp in dict)
+            {
+                if (kvp.Key.Equals("datasource", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("data source", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    datasource = kvp.Value;
+                }
+
+                else if (kvp.Key.Equals("uid", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("user", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("userid", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("user id", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("username", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("user name", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    username = kvp.Value;
+                }
+
+                else if (kvp.Key.Equals("pwd", StringComparison.InvariantCultureIgnoreCase) ||
+                    kvp.Key.Equals("password", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    password = kvp.Value;
+                }
+            }
+
+            // Return
+            return new OracleNanoCredentials
+            {
+                DataSource = datasource,
+                Username = username,
+                Password = password,
+            };
         }
     }
 }
