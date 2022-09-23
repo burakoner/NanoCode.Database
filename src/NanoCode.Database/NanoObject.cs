@@ -151,7 +151,7 @@ namespace NanoCode.Database
                 return;
 
             // Get Entity
-            var data = conn.DbConn.GetConnection(true).QueryFirstOrDefault<TEntity>($"SELECT * FROM {this.GetTableName()} WHERE {this.GetPrimaryKeyColumnName()}='{primaryKeyValue}'");
+            var data = conn.DbConn.GetConnection(true).QueryFirstOrDefault<TEntity>($"SELECT * FROM {db.Helper.Quote(this.GetTableName())} WHERE {db.Helper.Quote(this.GetPrimaryKeyColumnName())}='{primaryKeyValue}'");
             if (conn.Dispose) conn.DbConn.Dispose();
 
             // Mapping
@@ -234,7 +234,7 @@ namespace NanoCode.Database
                 throw new Exception("Database connection is null or invalid!");
 
             // Get Sql Query
-            var sql = this.SqlCommandForSaving();
+            var sql = this.SqlCommandForSaving(db);
             if (string.IsNullOrEmpty(sql))
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(PrimaryKeyAttribute)} attributes");
 
@@ -267,7 +267,7 @@ namespace NanoCode.Database
                 throw new Exception("Database connection is null or invalid!");
 
             // Get Sql Query
-            var sql = this.SqlCommandForDelete();
+            var sql = this.SqlCommandForDelete(db);
             if (string.IsNullOrEmpty(sql))
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(PrimaryKeyAttribute)} attributes");
 
@@ -276,7 +276,7 @@ namespace NanoCode.Database
             if (conn.Dispose) conn.DbConn.Dispose();
         }
 
-        public string SqlCommandForSaving()
+        public string SqlCommandForSaving(INanoDatabase db)
         {
             // Check Point
             if (string.IsNullOrEmpty(this.GetTableName())) return string.Empty;
@@ -303,22 +303,22 @@ namespace NanoCode.Database
                 }
 
                 // Insert
-                if (isNull || isDefault) return this.SqlCommandForInsert();
+                if (isNull || isDefault) return this.SqlCommandForInsert(db);
 
                 // Update
-                else return this.SqlCommandForUpdate();
+                else return this.SqlCommandForUpdate(db);
             }
             else
             {
                 // Insert
-                if (this.FlagForManualId) return this.SqlCommandForInsert();
+                if (this.FlagForManualId) return this.SqlCommandForInsert(db);
 
                 // Update
-                else return this.SqlCommandForUpdate();
+                else return this.SqlCommandForUpdate(db);
             }
         }
 
-        private string SqlCommandForInsert()
+        private string SqlCommandForInsert(INanoDatabase db)
         {
             // Check Point
             if (string.IsNullOrEmpty(this.GetTableName())) return string.Empty;
@@ -346,15 +346,15 @@ namespace NanoCode.Database
                 if (ignore) continue;
 
                 // Add to lists
-                columnNames.Add(this.GetDatabaseColumnName(pi));
+                columnNames.Add(db.Helper.Quote(this.GetDatabaseColumnName(pi)));
                 columnValues.Add($"@{pi.Name}");
             }
 
             // Return
-            return $"INSERT INTO {this.GetTableName()} ({string.Join(", ", columnNames)}) VALUES ({string.Join(", ", columnValues)});";
+            return $"INSERT INTO {db.Helper.Quote(this.GetTableName())} ({string.Join(", ", columnNames)}) VALUES ({string.Join(", ", columnValues)});";
         }
 
-        private string SqlCommandForUpdate()
+        private string SqlCommandForUpdate(INanoDatabase db)
         {
             // Check Point
             if (string.IsNullOrEmpty(this.GetTableName())) return string.Empty;
@@ -385,14 +385,14 @@ namespace NanoCode.Database
                 if (ignore) continue;
 
                 // Add to lists
-                columns.Add($"{this.GetDatabaseColumnName(pi)}=@{pi.Name}");
+                columns.Add($"{db.Helper.Quote(this.GetDatabaseColumnName(pi))}=@{pi.Name}");
             }
 
             // Return
-            return $"UPDATE {this.GetTableName()} SET {string.Join(", ", columns)} WHERE {primaryKeyColumn}={primaryKeyProperty};";
+            return $"UPDATE {db.Helper.Quote(this.GetTableName())} SET {string.Join(", ", columns)} WHERE {db.Helper.Quote(primaryKeyColumn)}='{primaryKeyProperty}';";
         }
 
-        private string SqlCommandForDelete()
+        private string SqlCommandForDelete(INanoDatabase db)
         {
             // Check Point
             if (string.IsNullOrEmpty(this.GetTableName())) return string.Empty;
@@ -410,7 +410,7 @@ namespace NanoCode.Database
             var primaryKeyPropertyName = $"@{primaryKey.Name}";
 
             // Return
-            return $"DELETE FROM {this.GetTableName()} WHERE {primaryKeyColumnName}={primaryKeyPropertyName};";
+            return $"DELETE FROM {db.Helper.Quote(this.GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}='{primaryKeyPropertyName}';";
         }
 
         public void JsonImport(string jsonObject)
@@ -473,7 +473,7 @@ namespace NanoCode.Database
             if (conn.DbConn == null) throw new Exception("Database connection is null or invalid!");
 
             // Build Sql Query
-            var sql = $"SELECT {dummy.GetTableName()}.* FROM {dummy.GetTableName()} ";
+            var sql = $"SELECT {db.Helper.Quote(dummy.GetTableName())}.* FROM {db.Helper.Quote(dummy.GetTableName())} ";
             if (!string.IsNullOrEmpty(query)) sql += query;
 
             // Get Entities
@@ -511,7 +511,7 @@ namespace NanoCode.Database
             if (conn.DbConn == null) throw new Exception("Database connection is null or invalid!");
 
             // Build Sql Query
-            var sql = $"SELECT {dummy.GetTableName()}.* FROM {dummy.GetTableName()} ";
+            var sql = $"SELECT {db.Helper.Quote(dummy.GetTableName())}.* FROM {db.Helper.Quote(dummy.GetTableName())} ";
             if (!string.IsNullOrEmpty(query)) sql += query;
 
             // Get Entities
@@ -543,7 +543,7 @@ namespace NanoCode.Database
 
             // Build Sql Query
             var primaryKeyColumnName = dummy.GetPrimaryKeyColumnName();
-            var sql = $"SELECT {dummy.GetTableName()}.* FROM {dummy.GetTableName()} WHERE {primaryKeyColumnName}=@ID";
+            var sql = $"SELECT {db.Helper.Quote(dummy.GetTableName())}.* FROM {db.Helper.Quote(dummy.GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}=@ID";
 
             // Get Entity
             var data = await conn.DbConn.GetConnection(true).QueryFirstOrDefaultAsync<TEntity>(sql, new { ID = id });
@@ -585,7 +585,7 @@ namespace NanoCode.Database
             var primaryKeyColumnName = dummy.GetPrimaryKeyColumnName();
             foreach (var chunk in idChunks)
             {
-                var sql = $"SELECT {tableName}.* FROM {tableName} WHERE {primaryKeyColumnName} IN @IDS";
+                var sql = $"SELECT {db.Helper.Quote(tableName)}.* FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
                 var data = (await conn.DbConn.GetConnection(true).QueryAsync<TEntity>(sql, new { IDS = chunk })).ToList();
                 returnList.AddRange(data);
             }
@@ -610,7 +610,7 @@ namespace NanoCode.Database
             if (conn.DbConn == null) throw new Exception("Database connection is null or invalid!");
 
             // Build Sql Query
-            var sql = $"DELETE FROM {dummy.GetTableName()} ";
+            var sql = $"DELETE FROM {db.Helper.Quote(dummy.GetTableName())} ";
             if (!string.IsNullOrEmpty(query)) sql += query;
 
             // Execute
@@ -639,7 +639,7 @@ namespace NanoCode.Database
             var primaryKeyColumnName = dummy.GetPrimaryKeyColumnName();
             foreach (var chunk in entityChunks)
             {
-                var sql = $"DELETE FROM {tableName} WHERE {primaryKeyColumnName} IN @IDS";
+                var sql = $"DELETE FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
                 await conn.DbConn.GetConnection(true).ExecuteAsync(sql, new { IDS = chunk.Select(x => x[primaryKeyProperty.Name]) });
             }
 
@@ -675,7 +675,7 @@ namespace NanoCode.Database
             var primaryKeyColumnName = dummy.GetPrimaryKeyColumnName();
             foreach (var chunk in idChunks)
             {
-                var sql = $"DELETE FROM {tableName} WHERE {primaryKeyColumnName} IN @IDS";
+                var sql = $"DELETE FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
                 await conn.DbConn.GetConnection(true).ExecuteAsync(sql, new { IDS = chunk });
             }
 

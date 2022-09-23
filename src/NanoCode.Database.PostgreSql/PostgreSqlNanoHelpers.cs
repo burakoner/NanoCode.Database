@@ -5,6 +5,15 @@ namespace NanoCode.Database.PostgreSql
 {
     public class PostgreSqlNanoHelpers : INanoHelper
     {
+        public string QuoteLeft { get; } = "\"";
+
+        public string QuoteRight { get; } = "\"";
+
+        public string Quote(string data)
+        {
+            return $"{QuoteLeft}{data}{QuoteRight}";
+        }
+
         public string Now()
         {
             return " NOW() ";

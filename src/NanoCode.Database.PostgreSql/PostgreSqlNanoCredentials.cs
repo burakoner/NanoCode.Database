@@ -17,27 +17,11 @@ namespace NanoCode.Database.PostgreSql
 
         public int Port { get; set; }
 
-        public string Catalog { get; set; }
+        public string Database { get; set; }
 
         public string Username { get; set; }
 
         public string Password { get; set; }
-
-        public bool Pooling { get; set; } = true;
-
-        public int Protocol { get; set; }
-
-        public bool Ssl { get; set; }
-
-        public int CommandTimeout { get; set; }
-
-        public int ConnectionTimeout { get; set; }
-
-        public int MinimumPoolSize { get; set; } = 0;
-
-        public int MaximumPoolSize { get; set; } = 100;
-
-        public int ConnectionLifetime { get; set; } = 0;
 
         [JsonIgnore]
         public string ConnectionString
@@ -47,17 +31,9 @@ namespace NanoCode.Database.PostgreSql
                 return
                     $"Server={this.Host}; " +
                     $"Port={this.Port}; " +
-                    $"Database={this.Catalog}; " +
+                    $"Database={this.Database}; " +
                     $"User Id={this.Username}; " +
-                    $"Password={this.Password}; " +
-                    (this.Protocol > 0 ? $"Protocol={Protocol}; " : "") +
-                    (this.Ssl ? $"SSL=true; SslMode=Require; " : "SSL=false; SslMode=Disable; ") +
-                    (this.CommandTimeout > 0 ? $"CommandTimeout={CommandTimeout}; " : "") +
-                    (this.ConnectionTimeout > 0 ? $"Timeout={ConnectionTimeout}; " : "") +
-                    $"Pooling={this.Pooling.ToString().ToLowerInvariant()}; " +
-                    (this.Pooling ? $"Min Pool Size={MinimumPoolSize}; " : "") +
-                    (this.Pooling ? $"Max Pool Size={MaximumPoolSize}; " : "") +
-                    (this.ConnectionLifetime > 0 ? $"Connection Lifetime={ConnectionLifetime}; " : "");
+                    $"Password={this.Password}; ";
             }
         }
 
@@ -71,24 +47,16 @@ namespace NanoCode.Database.PostgreSql
 
             this.Host = conn.Host;
             this.Port = conn.Port;
-            this.Catalog = conn.Catalog;
+            this.Database = conn.Database;
             this.Username = conn.Username;
             this.Password = conn.Password;
-            this.Pooling = conn.Pooling;
-            this.Protocol = conn.Protocol;
-            this.Ssl = conn.Ssl;
-            this.CommandTimeout = conn.CommandTimeout;
-            this.ConnectionTimeout = conn.ConnectionTimeout;
-            this.MinimumPoolSize = conn.MinimumPoolSize;
-            this.MaximumPoolSize = conn.MaximumPoolSize;
-            this.ConnectionLifetime = conn.ConnectionLifetime;
         }
 
-        public PostgreSqlNanoCredentials(string host, int port, string catalog, string username, string password)
+        public PostgreSqlNanoCredentials(string host, int port, string database, string username, string password)
         {
             Host = host;
             Port = port;
-            Catalog = catalog;
+            Database = database;
             Username = username;
             Password = password;
         }
@@ -108,17 +76,17 @@ namespace NanoCode.Database.PostgreSql
             // Parse
             var host = "";
             var port = 5432;
-            var catalog = "";
+            var database = "";
             var username = "";
             var password = "";
-            var pooling = false;
-            var protocol = 0;
-            var ssl = false;
-            var contimeout = 0;
-            var cmdtimeout = 0;
-            var minimumPoolSize = 0;
-            var maximumPoolSize = 0;
-            var connectionLifetime = 0;
+            //var pooling = false;
+            //var protocol = 0;
+            //var ssl = false;
+            //var contimeout = 0;
+            //var cmdtimeout = 0;
+            //var minimumPoolSize = 0;
+            //var maximumPoolSize = 0;
+            //var connectionLifetime = 0;
             foreach (var kvp in dict)
             {
                 if (kvp.Key.Equals("server", StringComparison.InvariantCultureIgnoreCase) ||
@@ -140,7 +108,7 @@ namespace NanoCode.Database.PostgreSql
                 else if (kvp.Key.Equals("database", StringComparison.InvariantCultureIgnoreCase) ||
                      kvp.Key.Equals("initial catalog", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    catalog = kvp.Value;
+                    database = kvp.Value;
                 }
 
                 else if (kvp.Key.Equals("uid", StringComparison.InvariantCultureIgnoreCase) ||
@@ -159,6 +127,7 @@ namespace NanoCode.Database.PostgreSql
                     password = kvp.Value;
                 }
 
+                /*
                 else if (kvp.Key.Equals("pooling", StringComparison.InvariantCultureIgnoreCase))
                 {
                     pooling = Convert.ToBoolean(kvp.Value);
@@ -198,6 +167,7 @@ namespace NanoCode.Database.PostgreSql
                 {
                     connectionLifetime = Convert.ToInt32(kvp.Value);
                 }
+                */
             }
 
             // Return
@@ -205,17 +175,9 @@ namespace NanoCode.Database.PostgreSql
             {
                 Host = host,
                 Port = port,
-                Catalog = catalog,
+                Database = database,
                 Username = username,
                 Password = password,
-                Pooling = pooling,
-                Protocol = protocol,
-                Ssl = ssl,
-                CommandTimeout = cmdtimeout,
-                ConnectionTimeout = contimeout,
-                MinimumPoolSize = minimumPoolSize,
-                MaximumPoolSize = maximumPoolSize,
-                ConnectionLifetime = connectionLifetime,
             };
         }
     }

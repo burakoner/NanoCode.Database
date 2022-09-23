@@ -16,7 +16,7 @@ namespace NanoCode.Database.SqlServer
 
         public int Port { get; set; }
 
-        public string Catalog { get; set; }
+        public string Database { get; set; }
 
         public string Username { get; set; }
 
@@ -35,12 +35,12 @@ namespace NanoCode.Database.SqlServer
                 return this.TrustedConnection
                     ?
                         $"Server={this.Host}{_port}; " +
-                        $"Database={this.Catalog}; " +
+                        $"Database={this.Database}; " +
                         $"Trusted_Connection=True; " +
                         $"MultipleActiveResultSets={this.MultipleActiveResultSets.ToString().ToLowerInvariant()}"
                     :
                         $"Server={this.Host}{_port}; " +
-                        $"Database={this.Catalog}; " +
+                        $"Database={this.Database}; " +
                         $"User Id={this.Username}; " +
                         $"Password={this.Password}; " +
                         $"MultipleActiveResultSets={this.MultipleActiveResultSets.ToString().ToLowerInvariant()}";
@@ -57,18 +57,18 @@ namespace NanoCode.Database.SqlServer
 
             Host = conn.Host;
             Port = conn.Port;
-            Catalog = conn.Catalog;
+            Database = conn.Database;
             Username = conn.Username;
             Password = conn.Password;
             TrustedConnection = conn.TrustedConnection;
             MultipleActiveResultSets = conn.MultipleActiveResultSets;
         }
 
-        public SqlServerNanoCredentials(string host, int port, string catalog, string username, string password, bool trustedConnection = false, bool multipleActiveResultSets = true)
+        public SqlServerNanoCredentials(string host, int port, string database, string username, string password, bool trustedConnection = false, bool multipleActiveResultSets = true)
         {
             Host = host;
             Port = port;
-            Catalog = catalog;
+            Database = database;
             Username = username;
             Password = password;
             TrustedConnection = trustedConnection;
@@ -90,7 +90,7 @@ namespace NanoCode.Database.SqlServer
             // Parse
             var host = "";
             var port = 1433;
-            var catalog = "";
+            var database = "";
             var username = "";
             var password = "";
             var mars = false;
@@ -113,7 +113,7 @@ namespace NanoCode.Database.SqlServer
                 else if (kvp.Key.Equals("database", StringComparison.InvariantCultureIgnoreCase) ||
                      kvp.Key.Equals("initial catalog", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    catalog = kvp.Value;
+                    database = kvp.Value;
                 }
 
                 else if (kvp.Key.Equals("uid", StringComparison.InvariantCultureIgnoreCase) ||
@@ -149,7 +149,7 @@ namespace NanoCode.Database.SqlServer
             {
                 Host = host,
                 Port = port,
-                Catalog = catalog,
+                Database = database,
                 Username = username,
                 Password = password,
                 TrustedConnection = trusted,

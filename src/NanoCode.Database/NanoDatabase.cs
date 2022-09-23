@@ -33,13 +33,6 @@ namespace NanoCode.Database
         public Stopwatch StopWatch { get; protected set; }
         public TimeSpan ExecutionTime { get; protected set; }
 
-        /** /
-        public NanoDatabase(INanoCredentials credentials)
-        {
-            this.Credentials = credentials;
-        }
-        /**/
-
         public bool OpenConnection()
         {
             try

@@ -16,7 +16,7 @@ namespace NanoCode.Database.MySql
 
         public int Port { get; set; }
 
-        public string Catalog { get; set; }
+        public string Database { get; set; }
 
         public string Username { get; set; }
 
@@ -30,7 +30,7 @@ namespace NanoCode.Database.MySql
                 return
                     $"Server={this.Host}; " +
                     $"Port={this.Port}; " +
-                    $"Database={this.Catalog}; " +
+                    $"Database={this.Database}; " +
                     $"Uid={this.Username}; " +
                     $"Pwd={this.Password}; ";
             }
@@ -46,16 +46,16 @@ namespace NanoCode.Database.MySql
 
             this.Host = conn.Host;
             this.Port = conn.Port;
-            this.Catalog = conn.Catalog;
+            this.Database = conn.Database;
             this.Username = conn.Username;
             this.Password = conn.Password;
         }
 
-        public MySqlNanoCredentials(string host, int port, string catalog, string username, string password)
+        public MySqlNanoCredentials(string host, int port, string database, string username, string password)
         {
             Host = host;
             Port = port;
-            Catalog = catalog;
+            Database = database;
             Username = username;
             Password = password;
         }
@@ -75,7 +75,7 @@ namespace NanoCode.Database.MySql
             // Parse
             var host = "";
             var port = 3306;
-            var catalog = "";
+            var database = "";
             var username = "";
             var password = "";
             foreach (var kvp in dict)
@@ -96,7 +96,7 @@ namespace NanoCode.Database.MySql
                 else if (kvp.Key.Equals("database", StringComparison.InvariantCultureIgnoreCase) ||
                      kvp.Key.Equals("initial catalog", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    catalog = kvp.Value;
+                    database = kvp.Value;
                 }
 
                 else if (kvp.Key.Equals("uid", StringComparison.InvariantCultureIgnoreCase) ||
@@ -121,7 +121,7 @@ namespace NanoCode.Database.MySql
             {
                 Host = host,
                 Port = port,
-                Catalog = catalog,
+                Database = database,
                 Username = username,
                 Password = password,
             };
