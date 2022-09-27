@@ -1,12 +1,12 @@
-﻿using System;
+﻿using NanoCode.Database.Interfaces;
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using NanoCode.Database.Interfaces;
 
 namespace NanoCode.Database
 {
-    public abstract class NanoDatabase : INanoDatabase, IDisposable
+    public abstract partial class NanoDatabase : INanoDatabase, IDisposable
     {
         public INanoCredentials Credentials { get; protected set; }
         public DatabaseEngine Engine => Credentials.Engine;
@@ -126,5 +126,6 @@ namespace NanoCode.Database
             GC.SuppressFinalize(this);
         }
         #endregion
+
     }
 }
