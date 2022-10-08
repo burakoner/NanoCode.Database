@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using NanoCode.Database.Interfaces;
+using NanoCode.Database.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,18 +29,7 @@ namespace NanoCode.Database
         internal static INanoCredentials GetDatabaseCredentials()
             => typeof(TEntity).GetAttributeValue((NanoCredentialsAttribute attr) => attr.Credentials);
 
-        internal static string GetPrimaryKeyColumnName()
-        {
-            var pi = GetPrimaryKeyPropertyInfo();
-            return pi != null ? pi.Name : string.Empty;
-        }
-
-        internal static PropertyInfo GetPrimaryKeyPropertyInfo()
-            => GetPrimaryKey().Info;
-        internal static PrimaryKeyOptions GetPrimaryKeyOptions()
-            => GetPrimaryKey().Options;
-
-        internal static (PropertyInfo Info, PrimaryKeyOptions Options) GetPrimaryKey()
+        internal static (PropertyInfo Info, NanoPrimaryKeyOptions Options) GetPrimaryKey()
         {
             foreach (var pi in typeof(TEntity).GetProperties())
             {
@@ -51,10 +41,10 @@ namespace NanoCode.Database
                 var attrs = pi.GetCustomAttributes(true);
                 foreach (var attr in attrs)
                 {
-                    if (attr.GetType().Name != nameof(PrimaryKeyAttribute))
+                    if (attr.GetType().Name != nameof(NanoPrimaryKeyAttribute))
                         continue;
 
-                    var pka = (PrimaryKeyAttribute)attr;
+                    var pka = (NanoPrimaryKeyAttribute)attr;
                     if (pka.IsPrimaryKey)
                         return (pi, pka.ToPrimaryKeyOptions());
                 }
@@ -68,13 +58,12 @@ namespace NanoCode.Database
             // Return
             return (null, null);
         }
-
-        internal static string GetDatabaseColumnName(PropertyInfo pi)
-        {
-            // Şimdilik böyle kalması yeterli.
-            // Property adı ile veritabanındaki sütunun adı farklılaştırıldığında geliştirme burada yapılabilir.
-            return pi.Name;
-        }
+        internal static PropertyInfo GetPrimaryKeyPropertyInfo()
+            => GetPrimaryKey().Info;
+        internal static NanoPrimaryKeyOptions GetPrimaryKeyOptions()
+            => GetPrimaryKey().Options;
+        internal static string GetPrimaryKeyColumnName()
+            => GetDatabaseColumnName(GetPrimaryKeyPropertyInfo());
 
         internal static NanoTableColumnOptions GetColumnOptions(PropertyInfo pi)
         {
@@ -85,11 +74,21 @@ namespace NanoCode.Database
                 if (attr.GetType().Name != nameof(NanoTableColumnAttribute))
                     continue;
 
-                return ((NanoTableColumnAttribute)attr).Options;
+                return ((NanoTableColumnAttribute)attr).ToTableColumnOptions();
             }
 
             // Return
             return null;
+        }
+        internal static string GetDatabaseColumnName(PropertyInfo pi)
+        {
+            if (pi == null) return string.Empty;
+
+            var columnOptions = GetColumnOptions(pi);
+            if (columnOptions == null) return pi.Name;
+            if (string.IsNullOrWhiteSpace(columnOptions.ColumnName)) return pi.Name;
+
+            return columnOptions.ColumnName;
         }
 
         internal static (INanoDatabase Conn, bool Dispose) GetConnection(INanoDatabase db)
@@ -156,11 +155,12 @@ namespace NanoCode.Database
             if (Dispose) Conn.Dispose();
 
             // Mapping
-            DataMapper(data);
+            EntityMapper(data);
         }
         #endregion
 
-        private void DataMapper(TEntity data)
+        #region Private Methods
+        private void EntityMapper(TEntity data)
         {
             // Check Point
             if (data == null) return;
@@ -207,7 +207,9 @@ namespace NanoCode.Database
                 }
             }
         }
+        #endregion
 
+        #region Public Methods
         public void SetIdentity(object value)
         {
             // Primary Key
@@ -237,7 +239,7 @@ namespace NanoCode.Database
             // Get Sql Query
             var sql = this.SqlCommandForSaving(db);
             if (string.IsNullOrEmpty(sql))
-                throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(PrimaryKeyAttribute)} attributes");
+                throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
             // Execute
             var primaryKey = GetPrimaryKeyPropertyInfo();
@@ -270,13 +272,15 @@ namespace NanoCode.Database
             // Get Sql Query
             var sql = this.SqlCommandForDelete(db);
             if (string.IsNullOrEmpty(sql))
-                throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(PrimaryKeyAttribute)} attributes");
+                throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
             // Execute
             await Conn.GetConnection(true).ExecuteAsync(sql, this);
             if (Dispose) Conn.Dispose();
         }
+        #endregion
 
+        #region Sql Commands
         public string SqlCommandForSaving(INanoDatabase db)
         {
             // Check Point
@@ -343,7 +347,7 @@ namespace NanoCode.Database
 
                 // Check Column Options
                 var columnOptions = GetColumnOptions(pi);
-                var ignore = columnOptions != null && (columnOptions.IsIgnored || columnOptions.IsIgnoredOnInsert);
+                var ignore = columnOptions != null && columnOptions.IgnoreOnInsert;
                 if (ignore) continue;
 
                 // Add to lists
@@ -382,7 +386,7 @@ namespace NanoCode.Database
 
                 // Check Column Options
                 var columnOptions = GetColumnOptions(pi);
-                var ignore = columnOptions != null && (columnOptions.IsIgnored || columnOptions.IsIgnoredOnUpdate);
+                var ignore = columnOptions != null && columnOptions.IgnoreOnUpdate;
                 if (ignore) continue;
 
                 // Add to lists
@@ -413,7 +417,9 @@ namespace NanoCode.Database
             // Return
             return $"DELETE FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}='{primaryKeyPropertyName}';";
         }
+        #endregion
 
+        #region Json Methods
         public void JsonImport(string jsonObject)
         {
             var json = JsonConvert.DeserializeObject(jsonObject);
@@ -445,6 +451,7 @@ namespace NanoCode.Database
         {
             return JsonConvert.SerializeObject(this);
         }
+        #endregion
 
         #region Static Methods
         /// <summary>
