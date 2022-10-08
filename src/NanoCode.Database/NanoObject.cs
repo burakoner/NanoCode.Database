@@ -174,10 +174,13 @@ namespace NanoCode.Database
                 if (nanoProperty.Name == "Item")
                     continue;
 
+                // Column Options
+                var columnOptions = GetColumnOptions(nanoProperty);
+
                 // Find Correct Property and Set
                 foreach (var dataProperty in dataProperties)
                 {
-                    if (nanoProperty.Name == dataProperty.Name)
+                    if (nanoProperty.Name == dataProperty.Name || (columnOptions != null && columnOptions.ColumnName == dataProperty.Name))
                     {
                         // Set Value
                         nanoProperty.SetValue(this, dataProperty.GetValue(data));
@@ -300,11 +303,13 @@ namespace NanoCode.Database
                 var isDefault = false;
                 if (primaryKeyValue != null)
                 {
-                    isDefault =
-                        EqualityComparer<int>.Default.Equals((int)primaryKeyValue, default) ||
-                        EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default) ||
-                        EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default) ||
-                        EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
+                    if (primaryKeyValue is int) isDefault = EqualityComparer<int>.Default.Equals((int)primaryKeyValue, default);
+                    if (primaryKeyValue is int?) isDefault = EqualityComparer<int?>.Default.Equals((int?)primaryKeyValue, default);
+                    if (primaryKeyValue is long) isDefault = EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default);
+                    if (primaryKeyValue is long?) isDefault = EqualityComparer<long?>.Default.Equals((long?)primaryKeyValue, default);
+                    if (primaryKeyValue is Guid) isDefault = EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
+                    if (primaryKeyValue is Guid?) isDefault = EqualityComparer<Guid?>.Default.Equals((Guid?)primaryKeyValue, default);
+                    if (primaryKeyValue is string) isDefault = EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default);
                 }
 
                 // Insert
@@ -394,7 +399,7 @@ namespace NanoCode.Database
             }
 
             // Return
-            return $"UPDATE {db.Helper.Quote(GetTableName())} SET {string.Join(", ", columns)} WHERE {db.Helper.Quote(primaryKeyColumn)}='{primaryKeyProperty}';";
+            return $"UPDATE {db.Helper.Quote(GetTableName())} SET {string.Join(", ", columns)} WHERE {db.Helper.Quote(primaryKeyColumn)}={primaryKeyProperty};";
         }
 
         private string SqlCommandForDelete(INanoDatabase db)
@@ -415,7 +420,7 @@ namespace NanoCode.Database
             var primaryKeyPropertyName = $"@{primaryKey.Name}";
 
             // Return
-            return $"DELETE FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}='{primaryKeyPropertyName}';";
+            return $"DELETE FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}={primaryKeyPropertyName};";
         }
         #endregion
 
