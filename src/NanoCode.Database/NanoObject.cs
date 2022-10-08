@@ -45,7 +45,7 @@ namespace NanoCode.Database
                         continue;
 
                     var pka = (NanoPrimaryKeyAttribute)attr;
-                    if (pka.IsPrimaryKey)
+                    if (pka.PrimaryKey)
                         return (pi, pka.ToPrimaryKeyOptions());
                 }
 

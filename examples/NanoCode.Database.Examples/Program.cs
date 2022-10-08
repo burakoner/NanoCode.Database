@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -15,6 +16,7 @@ namespace NanoCode.Database.Examples
             var asset = assets.FirstOrDefault();
             asset.NAME = asset.SYMBOL;
             asset.SaveChanges(conn.DbConn);
+
 
             Console.WriteLine("Hello, World!");
         }

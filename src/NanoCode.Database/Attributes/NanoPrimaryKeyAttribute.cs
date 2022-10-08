@@ -6,12 +6,12 @@ namespace NanoCode.Database
     [AttributeUsage(AttributeTargets.Property, Inherited = true)]
     public class NanoPrimaryKeyAttribute : Attribute
     {
-        public bool IsPrimaryKey { get; set; }
+        public bool PrimaryKey { get; set; }
         public bool AutoIncrement { get; set; }
 
-        public NanoPrimaryKeyAttribute(bool value = true, bool autoIncrement = true)
+        public NanoPrimaryKeyAttribute(bool primaryKey = true, bool autoIncrement = true)
         {
-            IsPrimaryKey = value;
+            PrimaryKey = primaryKey;
             AutoIncrement = autoIncrement;
         }
 
@@ -19,7 +19,7 @@ namespace NanoCode.Database
         {
             return new NanoPrimaryKeyOptions
             {
-                IsPrimaryKey = this.IsPrimaryKey,
+                PrimaryKey = this.PrimaryKey,
                 AutoIncrement = this.AutoIncrement,
             };
         }

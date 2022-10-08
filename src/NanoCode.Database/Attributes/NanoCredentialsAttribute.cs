@@ -10,6 +10,7 @@ namespace NanoCode.Database
     public class NanoCredentialsAttribute : Attribute
     {
         public INanoCredentials Credentials { get; set; }
+
         public NanoCredentialsAttribute(INanoCredentials credentials)
         {
             this.Credentials = credentials;

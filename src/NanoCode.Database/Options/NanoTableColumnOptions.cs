@@ -26,7 +26,7 @@ namespace NanoCode.Database.Options
         {
             return new NanoPrimaryKeyOptions
             {
-                IsPrimaryKey = this.IsPrimaryKey,
+                PrimaryKey = this.IsPrimaryKey,
                 AutoIncrement = this.AutoIncrement,
             };
         }

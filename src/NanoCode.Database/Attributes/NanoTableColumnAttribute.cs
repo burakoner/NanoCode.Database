@@ -9,7 +9,7 @@ namespace NanoCode.Database
         public string ColumnName { get; set; }
         public object DefaultValue { get; set; }
 
-        public bool IsPrimaryKey { get; set; }
+        public bool PrimaryKey { get; set; }
         public bool AutoIncrement { get; set; }
 
         public bool IgnoreOnInsert { get; set; }
@@ -28,7 +28,7 @@ namespace NanoCode.Database
         {
             return new NanoPrimaryKeyOptions
             {
-                IsPrimaryKey = this.IsPrimaryKey,
+                PrimaryKey = this.PrimaryKey,
                 AutoIncrement = this.AutoIncrement,
             };
         }
@@ -40,7 +40,7 @@ namespace NanoCode.Database
                 ColumnName = this.ColumnName,
                 DefaultValue = this.DefaultValue,
 
-                IsPrimaryKey = this.IsPrimaryKey,
+                IsPrimaryKey = this.PrimaryKey,
                 AutoIncrement = this.AutoIncrement,
 
                 IgnoreOnInsert = this.IgnoreOnInsert,

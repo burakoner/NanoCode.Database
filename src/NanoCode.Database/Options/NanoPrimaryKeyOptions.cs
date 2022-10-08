@@ -6,7 +6,7 @@ namespace NanoCode.Database.Options
 {
     internal class NanoPrimaryKeyOptions
     {
-        public bool IsPrimaryKey { get; set; }
+        public bool PrimaryKey { get; set; }
         public bool AutoIncrement { get; set; }
     }
 }
