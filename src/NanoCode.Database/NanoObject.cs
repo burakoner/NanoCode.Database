@@ -13,7 +13,7 @@ namespace NanoCode.Database
     public abstract class NanoObject<TEntity>
     {
         #region Flags
-        protected bool FlagForManualId = false;
+        private bool _flagForManualId = false;
         #endregion
 
         #region Attribute Properties
@@ -226,7 +226,7 @@ namespace NanoCode.Database
             pi.SetValue(this, value);
 
             // Flag
-            this.FlagForManualId = true;
+            this._flagForManualId = true;
         }
 
         public void SaveChanges(INanoDatabase db) => SaveChangesAsync(db).Wait();
@@ -321,7 +321,7 @@ namespace NanoCode.Database
             else
             {
                 // Insert
-                if (this.FlagForManualId) return this.SqlCommandForInsert(db);
+                if (this._flagForManualId) return this.SqlCommandForInsert(db);
 
                 // Update
                 else return this.SqlCommandForUpdate(db);
