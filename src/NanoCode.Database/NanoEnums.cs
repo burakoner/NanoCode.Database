@@ -1,4 +1,4 @@
-﻿namespace NanoCode.Database
+﻿namespace Nanocode.Database
 {
     public enum DatabaseEngine
     {

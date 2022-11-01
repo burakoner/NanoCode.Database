@@ -1,8 +1,8 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 
-namespace NanoCode.Database.Oracle
+namespace Nanocode.Database.Oracle
 {
     public class OracleNanoDatabase : NanoDatabase
     {

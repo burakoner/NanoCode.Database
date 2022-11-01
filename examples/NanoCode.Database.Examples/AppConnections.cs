@@ -1,8 +1,8 @@
-﻿using NanoCode.Database;
-using NanoCode.Database.Interfaces;
-using NanoCode.Database.SqlServer;
+﻿using Nanocode.Database;
+using Nanocode.Database.Interfaces;
+using Nanocode.Database.SqlServer;
 
-namespace NanoCode.Database.Examples
+namespace Nanocode.Database.Examples
 {
     public class AppConnections
     {

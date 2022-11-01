@@ -1,9 +1,9 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using Newtonsoft.Json;
 using System.Linq;
 using System;
 
-namespace NanoCode.Database.Sqlite
+namespace Nanocode.Database.Sqlite
 {
     public class SqliteNanoCredentials : INanoCredentials
     {

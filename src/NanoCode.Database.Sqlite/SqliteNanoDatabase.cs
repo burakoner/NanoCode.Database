@@ -1,8 +1,8 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System.Data.Common;
 using System.Data.SQLite;
 
-namespace NanoCode.Database.Sqlite
+namespace Nanocode.Database.Sqlite
 {
     public class SqliteNanoDatabase : NanoDatabase
     {

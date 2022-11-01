@@ -1,8 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
-using NanoCode.Database.Interfaces;
+using Nanocode.Database.Interfaces;
 using System.Data.Common;
 
-namespace NanoCode.Database.MySql
+namespace Nanocode.Database.MySql
 {
     public class MySqlNanoDatabase : NanoDatabase
     {

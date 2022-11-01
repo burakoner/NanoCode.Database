@@ -1,8 +1,8 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System.Data.Common;
 using Npgsql;
 
-namespace NanoCode.Database.PostgreSql
+namespace Nanocode.Database.PostgreSql
 {
     public class PostgreSqlNanoDatabase : NanoDatabase
     {

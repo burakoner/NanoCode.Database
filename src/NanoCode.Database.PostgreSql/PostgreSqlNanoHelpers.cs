@@ -1,7 +1,7 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System;
 
-namespace NanoCode.Database.PostgreSql
+namespace Nanocode.Database.PostgreSql
 {
     public class PostgreSqlNanoHelpers : INanoHelper
     {

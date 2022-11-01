@@ -1,8 +1,8 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace NanoCode.Database.SqlServer
+namespace Nanocode.Database.SqlServer
 {
     public class SqlServerNanoDatabase : NanoDatabase
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class NanoTableAttribute : Attribute

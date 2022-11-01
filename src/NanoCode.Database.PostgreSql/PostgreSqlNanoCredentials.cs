@@ -1,10 +1,10 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.Linq;
 
-namespace NanoCode.Database.PostgreSql
+namespace Nanocode.Database.PostgreSql
 {
     public class PostgreSqlNanoCredentials : INanoCredentials
     {

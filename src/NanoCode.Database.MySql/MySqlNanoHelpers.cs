@@ -1,7 +1,7 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System;
 
-namespace NanoCode.Database.MySql
+namespace Nanocode.Database.MySql
 {
     public class MySqlNanoHelpers : INanoHelper
     {

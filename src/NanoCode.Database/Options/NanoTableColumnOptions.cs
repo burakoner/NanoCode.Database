@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NanoCode.Database.Options
+namespace Nanocode.Database.Options
 {
     internal class NanoTableColumnOptions
     {

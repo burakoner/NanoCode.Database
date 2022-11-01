@@ -1,4 +1,4 @@
-namespace NanoCode.Database.Sqlite.Tests
+namespace Nanocode.Database.Sqlite.Tests
 {
     public class Tests
     {

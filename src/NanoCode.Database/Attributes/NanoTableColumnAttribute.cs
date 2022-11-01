@@ -1,7 +1,7 @@
-﻿using NanoCode.Database.Options;
+﻿using Nanocode.Database.Options;
 using System;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = true)]
     public class NanoTableColumnAttribute : Attribute

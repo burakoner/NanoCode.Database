@@ -1,4 +1,4 @@
-namespace NanoCode.Database.Oracle.Tests
+namespace Nanocode.Database.Oracle.Tests
 {
     public class Tests
     {

@@ -1,4 +1,4 @@
-namespace NanoCode.Database.MySql.Tests
+namespace Nanocode.Database.MySql.Tests
 {
     public class Tests
     {

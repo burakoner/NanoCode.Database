@@ -1,4 +1,4 @@
-namespace NanoCode.Database.Tests
+namespace Nanocode.Database.Tests
 {
     public class Tests
     {

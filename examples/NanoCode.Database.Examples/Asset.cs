@@ -1,7 +1,7 @@
-﻿using NanoCode.Database;
-using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database;
+using Nanocode.Database.Interfaces;
 
-namespace NanoCode.Database.Examples
+namespace Nanocode.Database.Examples
 {
     [NanoTable("EXC_ASSETS")]
     public class Asset : NanoObject<Asset>

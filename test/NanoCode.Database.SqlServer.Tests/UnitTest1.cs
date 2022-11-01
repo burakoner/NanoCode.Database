@@ -1,4 +1,4 @@
-namespace NanoCode.Database.SqlServer.Tests
+namespace Nanocode.Database.SqlServer.Tests
 {
     public class Tests
     {

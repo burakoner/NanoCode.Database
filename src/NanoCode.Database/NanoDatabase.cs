@@ -1,10 +1,10 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     public abstract partial class NanoDatabase : INanoDatabase, IDisposable
     {

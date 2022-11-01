@@ -1,10 +1,10 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using Newtonsoft.Json;
 using System.Linq;
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace NanoCode.Database.Oracle
+namespace Nanocode.Database.Oracle
 {
     public class OracleNanoCredentials : INanoCredentials
     {

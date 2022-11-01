@@ -1,7 +1,7 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System;
 
-namespace NanoCode.Database.SqlServer
+namespace Nanocode.Database.SqlServer
 {
     public class SqlServerNanoHelpers : INanoHelper
     {

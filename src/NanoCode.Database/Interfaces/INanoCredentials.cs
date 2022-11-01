@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 
-namespace NanoCode.Database.Interfaces
+namespace Nanocode.Database.Interfaces
 {
     public interface INanoCredentials
     {

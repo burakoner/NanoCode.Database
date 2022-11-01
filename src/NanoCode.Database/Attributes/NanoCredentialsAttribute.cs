@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using NanoCode.Database.Interfaces;
+using Nanocode.Database.Interfaces;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class NanoCredentialsAttribute : Attribute

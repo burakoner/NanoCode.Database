@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database", "src\NanoCode.Database\NanoCode.Database.csproj", "{86D22080-D916-498A-B63C-718D73141595}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database", "src\Nanocode.Database\Nanocode.Database.csproj", "{86D22080-D916-498A-B63C-718D73141595}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.SqlServer", "src\NanoCode.Database.SqlServer\NanoCode.Database.SqlServer.csproj", "{CB70502E-BD7F-4AA0-AB88-0585C812FE43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.SqlServer", "src\Nanocode.Database.SqlServer\Nanocode.Database.SqlServer.csproj", "{CB70502E-BD7F-4AA0-AB88-0585C812FE43}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.PostgreSql", "src\NanoCode.Database.PostgreSql\NanoCode.Database.PostgreSql.csproj", "{7319E064-CB3A-4C6E-81D9-98BCB2B3D925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.PostgreSql", "src\Nanocode.Database.PostgreSql\Nanocode.Database.PostgreSql.csproj", "{7319E064-CB3A-4C6E-81D9-98BCB2B3D925}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Oracle", "src\NanoCode.Database.Oracle\NanoCode.Database.Oracle.csproj", "{0E64EF63-339F-4B17-AB0A-818755EEB062}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Oracle", "src\Nanocode.Database.Oracle\Nanocode.Database.Oracle.csproj", "{0E64EF63-339F-4B17-AB0A-818755EEB062}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.MySql", "src\NanoCode.Database.MySql\NanoCode.Database.MySql.csproj", "{F916A148-EA71-49BC-A97A-152BED4C8777}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.MySql", "src\Nanocode.Database.MySql\Nanocode.Database.MySql.csproj", "{F916A148-EA71-49BC-A97A-152BED4C8777}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Sqlite", "src\NanoCode.Database.Sqlite\NanoCode.Database.Sqlite.csproj", "{2D0EBF5D-3D34-4E5B-A2C5-74EEB0A8E4BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Sqlite", "src\Nanocode.Database.Sqlite\Nanocode.Database.Sqlite.csproj", "{2D0EBF5D-3D34-4E5B-A2C5-74EEB0A8E4BC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6F5FCBF2-F958-42F6-861C-B46A7226DA86}"
 EndProject
@@ -21,19 +21,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{82
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C90060C3-C151-482C-A0B0-1BBF3ACD5E4B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Tests", "test\NanoCode.Database.Tests\NanoCode.Database.Tests.csproj", "{A9908138-AE06-422B-B7E5-2765F2DF35F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Tests", "test\Nanocode.Database.Tests\Nanocode.Database.Tests.csproj", "{A9908138-AE06-422B-B7E5-2765F2DF35F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.MySql.Tests", "test\NanoCode.Database.MySql.Tests\NanoCode.Database.MySql.Tests.csproj", "{E11A24D3-AB30-4DEA-86E6-B5E9B2ECF71E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.MySql.Tests", "test\Nanocode.Database.MySql.Tests\Nanocode.Database.MySql.Tests.csproj", "{E11A24D3-AB30-4DEA-86E6-B5E9B2ECF71E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Oracle.Tests", "test\NanoCode.Database.Oracle.Tests\NanoCode.Database.Oracle.Tests.csproj", "{BB8BD6D4-3105-497C-AA29-CF7AA838D022}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Oracle.Tests", "test\Nanocode.Database.Oracle.Tests\Nanocode.Database.Oracle.Tests.csproj", "{BB8BD6D4-3105-497C-AA29-CF7AA838D022}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.PostgreSql.Tests", "test\NanoCode.Database.PostgreSql.Tests\NanoCode.Database.PostgreSql.Tests.csproj", "{90570A4B-AAFF-4318-9182-DD3A4F55DAB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.PostgreSql.Tests", "test\Nanocode.Database.PostgreSql.Tests\Nanocode.Database.PostgreSql.Tests.csproj", "{90570A4B-AAFF-4318-9182-DD3A4F55DAB8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Sqlite.Tests", "test\NanoCode.Database.Sqlite.Tests\NanoCode.Database.Sqlite.Tests.csproj", "{7FF26F06-9FFF-4A8E-BE33-31643948365E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Sqlite.Tests", "test\Nanocode.Database.Sqlite.Tests\Nanocode.Database.Sqlite.Tests.csproj", "{7FF26F06-9FFF-4A8E-BE33-31643948365E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.SqlServer.Tests", "test\NanoCode.Database.SqlServer.Tests\NanoCode.Database.SqlServer.Tests.csproj", "{18907A26-CF0E-4232-BB73-0587C0921B51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.SqlServer.Tests", "test\Nanocode.Database.SqlServer.Tests\Nanocode.Database.SqlServer.Tests.csproj", "{18907A26-CF0E-4232-BB73-0587C0921B51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanoCode.Database.Examples", "examples\NanoCode.Database.Examples\NanoCode.Database.Examples.csproj", "{69026495-0357-43B4-B0D9-B9C34004B66F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nanocode.Database.Examples", "examples\Nanocode.Database.Examples\Nanocode.Database.Examples.csproj", "{69026495-0357-43B4-B0D9-B9C34004B66F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{138BB585-32A8-4B8D-A97A-470C47249770}"
 EndProject

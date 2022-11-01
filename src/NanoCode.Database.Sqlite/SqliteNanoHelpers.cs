@@ -1,7 +1,7 @@
-﻿using NanoCode.Database.Interfaces;
+﻿using Nanocode.Database.Interfaces;
 using System;
 
-namespace NanoCode.Database.Sqlite
+namespace Nanocode.Database.Sqlite
 {
     public class SqliteNanoHelpers : INanoHelper
     {

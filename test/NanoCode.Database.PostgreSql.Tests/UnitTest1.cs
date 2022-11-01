@@ -1,4 +1,4 @@
-namespace NanoCode.Database.PostgreSql.Tests
+namespace Nanocode.Database.PostgreSql.Tests
 {
     public class Tests
     {

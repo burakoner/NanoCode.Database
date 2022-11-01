@@ -1,16 +1,17 @@
 ﻿using Dapper;
-using NanoCode.Database.Interfaces;
-using NanoCode.Database.Options;
+using Nanocode.Database.Interfaces;
+using Nanocode.Database.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
-    public abstract class NanoObject<TEntity>
+    public  class NanoObject<TEntity>
     {
         #region Flags
         private bool _flagForManualId = false;
@@ -458,6 +459,10 @@ namespace NanoCode.Database
         }
         #endregion
 
+        #region Sql Builder
+        public static NanoSqlBuilder<TEntity> SqlBuilder(INanoDatabase db) => new NanoSqlBuilder<TEntity>(db);
+        #endregion
+
         #region Static Methods
         /// <summary>
         /// 
@@ -675,6 +680,5 @@ namespace NanoCode.Database
             if (Dispose) Conn.Dispose();
         }
         #endregion
-
     }
 }

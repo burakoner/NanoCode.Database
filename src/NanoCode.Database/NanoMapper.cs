@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     public static class NanoMapper
     {

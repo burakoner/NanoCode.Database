@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NanoCode.Database.Interfaces
+namespace Nanocode.Database.Interfaces
 {
     public interface INanoHelper
     {

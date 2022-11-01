@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     public abstract partial class NanoDatabase
     {

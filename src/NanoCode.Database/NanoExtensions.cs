@@ -7,7 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
 
-namespace NanoCode.Database
+namespace Nanocode.Database
 {
     public static class AttributeExtensions
     {
