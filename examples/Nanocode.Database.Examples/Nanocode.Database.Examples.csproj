@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Nanocode.Database.PostgreSql\Nanocode.Database.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\src\Nanocode.Database.SqlServer\Nanocode.Database.SqlServer.csproj" />
+  </ItemGroup>
+
+</Project>
