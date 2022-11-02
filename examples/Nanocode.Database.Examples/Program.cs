@@ -59,8 +59,6 @@ namespace Nanocode.Database.Examples
 
 
 
-
-
             Console.WriteLine("Hello, World!");
         }
     }
