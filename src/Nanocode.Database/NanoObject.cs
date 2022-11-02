@@ -474,11 +474,10 @@ namespace Nanocode.Database
             if (DbConn == null) throw new Exception("Database connection is null or invalid!");
 
             // Build Sql Query
-            var sqlBuilder = CreateSqlBuilder(db).Query.Select("*");
-            var sqlString = sqlBuilder.ToString();
+            var sql = CreateSqlBuilder(db).Select("*").ToString();
 
             // Get Entities
-            var data = (await DbConn.GetConnection(true).QueryAsync<TEntity>(sqlString)).ToList();
+            var data = (await DbConn.GetConnection(true).QueryAsync<TEntity>(sql)).ToList();
             if (Dispose) DbConn.Dispose();
 
             // Return
