@@ -29,7 +29,6 @@ namespace Nanocode.Database
             get { return Connection.Database; }
             set { Connection.ChangeDatabase(value); }
         }
-        public string ServerVersion => Connection.ServerVersion;
         public Stopwatch StopWatch { get; protected set; }
         public TimeSpan ExecutionTime { get; protected set; }
 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Nanocode.Database
 {
-    public  class NanoObject<TEntity>
+    public class NanoObject<TEntity>
     {
         #region Flags
         private bool _flagForManualId = false;
@@ -459,10 +459,12 @@ namespace Nanocode.Database
         }
         #endregion
 
-        #region Sql Builder
-        public static NanoSqlBuilder<TEntity> SqlBuilder(INanoDatabase db) => new NanoSqlBuilder<TEntity>(db);
+        #region Static Properties
+        public static NanoProperties<TEntity> Properties { get { return new NanoProperties<TEntity>(); } }
+        public static NanoSqlBuilder<TEntity> CreateSqlBuilder(INanoDatabase db) => new NanoSqlBuilder<TEntity>(db);
         #endregion
 
+#if FALSE
         #region Static Methods
         /// <summary>
         /// 
@@ -680,5 +682,6 @@ namespace Nanocode.Database
             if (Dispose) Conn.Dispose();
         }
         #endregion
+#endif
     }
 }

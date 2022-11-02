@@ -22,7 +22,6 @@ namespace Nanocode.Database.Interfaces
         int ConnectionTimeout { get; }
         int CommandTimeout { get; set; }
         string Database { get; set; }
-        string ServerVersion { get; }
         Stopwatch StopWatch { get; }
         TimeSpan ExecutionTime { get; }
 

@@ -8,13 +8,12 @@
 
         PostgreSql,
 
-        Redis,
-
         Sqlite,
 
         SqlServer,
 
         /* ------------------ * /
+        Redis,
 
         [EnumLabel("Cassandra")]
         Cassandra,

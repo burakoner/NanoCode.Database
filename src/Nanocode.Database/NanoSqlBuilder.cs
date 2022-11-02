@@ -1,97 +1,69 @@
 ﻿using Nanocode.Database.Interfaces;
+using SqlKata;
+using SqlKata.Compilers;
 using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 
 namespace Nanocode.Database
 {
     public class NanoSqlBuilder<TEntity>
     {
-        private readonly INanoDatabase _db;
-        private readonly List<string> _list;
+        /* Private Fields */
+        private INanoDatabase _db;
+        private Compiler _compiler;
+        private Query _query;
 
-        internal NanoSqlBuilder(INanoDatabase db)
+        /* Public Properties */
+        public Query Query
+        {
+            get { return this._query; }
+            set { this._query = value; }
+        }
+
+        public NanoSqlBuilder(INanoDatabase db)
+        {
+            this.Construct(db);
+        }
+
+        public Query Construct(INanoDatabase db)
         {
             this._db = db;
-            this._list = new List<string>();
-        }
-
-        public NanoSqlBuilder<TEntity> Append(string query)
-        {
-            // Action
-            this._list.Add(query);
-
-            // Return
-            return this;
-        }
-
-        public NanoSqlBuilder<TEntity> AppendTableName()
-        {
-            // Get TableName
-            var tableName = NanoObject<TEntity>.GetTableName();
-
-            // Append
-            this._list.Add(_db.Helper.Quote(tableName));
-
-            // Return
-            return this;
-        }
-
-        public NanoSqlBuilder<TEntity> AppendColumnName<TColumn>(Expression<Func<TEntity, TColumn>> property)
-        {
-            // Get PropertyInfo
-            var propertyInfo = ((MemberExpression)property.Body).Member as PropertyInfo;
-            if (propertyInfo == null)
+            switch (_db.Engine)
             {
-                throw new ArgumentException("The lambda expression 'property' should point to a valid Property");
+                case DatabaseEngine.MySql:
+                    this._compiler = new MySqlCompiler();
+                    break;
+                case DatabaseEngine.Oracle:
+                    this._compiler = new OracleCompiler();
+                    break;
+                case DatabaseEngine.PostgreSql:
+                    this._compiler = new PostgresCompiler();
+                    break;
+                case DatabaseEngine.Sqlite:
+                    this._compiler = new SqliteCompiler();
+                    break;
+                case DatabaseEngine.SqlServer:
+                    this._compiler = new SqlServerCompiler();
+                    break;
             }
-            var columnName = NanoObject<TEntity>.GetDatabaseColumnName(propertyInfo);
 
-            // Append
-            this._list.Add(_db.Helper.Quote(columnName));
+            if (this._compiler == null)
+                throw new Exception("Database Engine is missing or unsupported");
 
-            // Return
-            return this;
+            var tableName = NanoObject<TEntity>.Properties.TableName;
+            this.Query = new Query(tableName);
+
+            return this.Query;
         }
 
-        public NanoSqlBuilder<TEntity> AppendPrimaryColumnName()
+        public SqlResult Compile()
         {
-            // Get ColumnName
-            var columnName = NanoObject<TEntity>.GetPrimaryKeyColumnName();
-
-            // Append
-            this._list.Add(_db.Helper.Quote(columnName));
-
-            // Return
-            return this;
-        }
-
-        public NanoSqlBuilder<TEntity> Clear()
-        {
-            // Action
-            this._list.Clear();
-
-            // Return
-            return this;
+            return this._compiler.Compile(this.Query);
         }
 
         public override string ToString()
         {
-            // Action
-            var sb = new StringBuilder();
-            foreach (var item in this._list)
-                sb.Append(item);
-
-            // Action
-            return sb.ToString();
+            return this._compiler.Compile(this.Query).ToString();
         }
 
-        public string ToString(string delimiter)
-        {
-            // Return
-            return string.Join(delimiter, this._list);
-        }
     }
 }
