@@ -248,8 +248,9 @@ namespace Nanocode.Database
             // Execute
             var primaryKey = GetPrimaryKeyPropertyInfo();
             var pkOptions = GetPrimaryKeyOptions();
-            if (!pkOptions.AutoIncrement && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
+            if (pkOptions.AutoIncrement && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
             {
+                // TODO: ScopeIdentity Sonucunu Primary Key'e eşitle
                 object id = null;
                 sql += conn.Helper.ScopeIdentity(primaryKey.PropertyType);
                 if (primaryKey.PropertyType == typeof(int)) id = (await conn.GetConnection(true).QueryAsync<int>(sql, this)).Single();
@@ -293,7 +294,7 @@ namespace Nanocode.Database
 
             // Action
             var primaryKey = GetPrimaryKeyColumnName();
-            var primaryKeyProperty = this.GetType().GetProperty(primaryKey);
+            var primaryKeyProperty = GetPrimaryKeyPropertyInfo();
             var primaryKeyType = primaryKeyProperty.PropertyType;
             var primaryKeyValue = primaryKeyProperty.GetValue(this);
             var primaryKeyOptions = GetPrimaryKeyOptions();

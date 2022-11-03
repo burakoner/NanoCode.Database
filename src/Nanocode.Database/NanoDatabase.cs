@@ -45,6 +45,8 @@ namespace Nanocode.Database
                     Connection.Close();
                     Connection.Open();
                 }
+
+                return true;
             }
             catch { }
 
