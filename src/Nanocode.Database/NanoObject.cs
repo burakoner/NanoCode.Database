@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Nanocode.Database
 {
-    public class NanoObject<TEntity>
+    public abstract class NanoObject<TEntity> : INanoObject
     {
         #region Flags
         private bool _flagForManualId = false;
@@ -145,15 +145,15 @@ namespace Nanocode.Database
             if (string.IsNullOrEmpty(GetTableName()) || string.IsNullOrEmpty(GetPrimaryKeyColumnName())) return;
 
             // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
+            var (conn, dispose) = GetConnection(db);
 
             // Check Point
-            if (Conn == null)
+            if (conn == null)
                 return;
 
             // Get Entity
-            var data = Conn.GetConnection(true).QueryFirstOrDefault<TEntity>($"SELECT * FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(GetPrimaryKeyColumnName())}='{primaryKeyValue}'");
-            if (Dispose) Conn.Dispose();
+            var data = conn.GetConnection(true).QueryFirstOrDefault<TEntity>($"SELECT * FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(GetPrimaryKeyColumnName())}='{primaryKeyValue}'");
+            if (dispose) conn.Dispose();
 
             // Mapping
             EntityMapper(data);
@@ -234,10 +234,10 @@ namespace Nanocode.Database
         public async Task SaveChangesAsync(INanoDatabase db)
         {
             // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
+            var (conn, dispose) = GetConnection(db);
 
             // Check Point
-            if (Conn == null)
+            if (conn == null)
                 throw new Exception("Database connection is null or invalid!");
 
             // Get Sql Query
@@ -251,15 +251,15 @@ namespace Nanocode.Database
             if (!pkOptions.AutoIncrement && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
             {
                 object id = null;
-                sql += Conn.Helper.ScopeIdentity(primaryKey.PropertyType);
-                if (primaryKey.PropertyType == typeof(int)) id = (await Conn.GetConnection(true).QueryAsync<int>(sql, this)).Single();
-                else if (primaryKey.PropertyType == typeof(long)) id = (await Conn.GetConnection(true).QueryAsync<long>(sql, this)).Single();
-                if (Dispose) Conn.Dispose();
+                sql += conn.Helper.ScopeIdentity(primaryKey.PropertyType);
+                if (primaryKey.PropertyType == typeof(int)) id = (await conn.GetConnection(true).QueryAsync<int>(sql, this)).Single();
+                else if (primaryKey.PropertyType == typeof(long)) id = (await conn.GetConnection(true).QueryAsync<long>(sql, this)).Single();
+                if (dispose) conn.Dispose();
             }
             else
             {
-                await Conn.GetConnection(true).QueryAsync(sql, this);
-                if (Dispose) Conn.Dispose();
+                await conn.GetConnection(true).QueryAsync(sql, this);
+                if (dispose) conn.Dispose();
             }
         }
 
@@ -267,10 +267,10 @@ namespace Nanocode.Database
         public async Task DeleteAsync(INanoDatabase db)
         {
             // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
+            var (conn, dispose) = GetConnection(db);
 
             // Check Point
-            if (Conn == null)
+            if (conn == null)
                 throw new Exception("Database connection is null or invalid!");
 
             // Get Sql Query
@@ -279,8 +279,8 @@ namespace Nanocode.Database
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
             // Execute
-            await Conn.GetConnection(true).ExecuteAsync(sql, this);
-            if (Dispose) Conn.Dispose();
+            await conn.GetConnection(true).ExecuteAsync(sql, this);
+            if (dispose) conn.Dispose();
         }
         #endregion
 
@@ -468,17 +468,17 @@ namespace Nanocode.Database
         public static async Task<List<TEntity>> GetAllRowsAsync(INanoDatabase db)
         {
             // Get Connection
-            var (DbConn, Dispose) = GetConnection(db);
+            var (conn, dispose) = GetConnection(db);
 
             // Check Point
-            if (DbConn == null) throw new Exception("Database connection is null or invalid!");
+            if (conn == null) throw new Exception("Database connection is null or invalid!");
 
             // Build Sql Query
             var sql = CreateSqlBuilder(db).Select("*").ToString();
 
             // Get Entities
-            var data = (await DbConn.GetConnection(true).QueryAsync<TEntity>(sql)).ToList();
-            if (Dispose) DbConn.Dispose();
+            var data = (await conn.GetConnection(true).QueryAsync<TEntity>(sql)).ToList();
+            if (dispose) conn.Dispose();
 
             // Return
             return data;
