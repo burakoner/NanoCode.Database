@@ -8,10 +8,10 @@
 	<PropertyGroup>
 		<PackageId>Nanocode.Database.MySql</PackageId>
 		<Authors>Burak Öner</Authors>
-		<Version>1.5.5</Version>
-		<FileVersion>1.5.5</FileVersion>
-		<PackageVersion>1.5.5</PackageVersion>
-		<AssemblyVersion>1.5.5</AssemblyVersion>
+		<Version>1.5.8</Version>
+		<FileVersion>1.5.8</FileVersion>
+		<PackageVersion>1.5.8</PackageVersion>
+		<AssemblyVersion>1.5.8</AssemblyVersion>
 		<Description>Faster ORM tools using Dapper, SqlKata and low-level implementations</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageTags>Nanocode;Database;ORM;EF;Entity;Dapper;Mapper;Sql;SqlServer;MsSql;Oracle;Postgre;PostgreSql;Sqlite;MySql;Redis</PackageTags>
@@ -19,7 +19,7 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageReleaseNotes>
-			Version 1.5.5 - 06 Nov 2022
+			Version 1.5.8 - 06 Nov 2022
 		</PackageReleaseNotes>
 		<PackageIcon>Nanocode.png</PackageIcon>
 		<PackageIconUrl />
@@ -29,7 +29,7 @@
 	
 	<ItemGroup>
 		<PackageReference Include="MySql.Data" Version="8.0.31" />
-		<PackageReference Include="Nanocode.Database" Version="1.5.5" />
+		<PackageReference Include="Nanocode.Database" Version="1.5.8" />
 	</ItemGroup>
 
 	<ItemGroup>

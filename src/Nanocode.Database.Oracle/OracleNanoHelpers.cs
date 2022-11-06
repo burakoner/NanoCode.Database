@@ -14,7 +14,7 @@ namespace Nanocode.Database.Oracle
             return $"{QuoteLeft}{data}{QuoteRight}";
         }
 
-        public string ScopeIdentity(Type type)
+        public string ScopeIdentity(Type type, string columnName, bool isNumeric)
         {
             return string.Empty;
         }

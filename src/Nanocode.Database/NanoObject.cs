@@ -2,6 +2,7 @@
 using Nanocode.Database.Interfaces;
 using Nanocode.Database.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -246,22 +247,55 @@ namespace Nanocode.Database
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
             // Execute
-            var primaryKey = GetPrimaryKeyPropertyInfo();
+            await conn.GetConnection(true).QueryAsync(sql, this);
+
+            // Scope Identity
             var pkOptions = GetPrimaryKeyOptions();
-            if (pkOptions.AutoIncrement && new Type[] { typeof(int), typeof(long) }.Contains(primaryKey.PropertyType))
+            if (pkOptions.AutoIncrement)
             {
-                // TODO: ScopeIdentity Sonucunu Primary Key'e eşitle
-                object id = null;
-                sql += conn.Helper.ScopeIdentity(primaryKey.PropertyType);
-                if (primaryKey.PropertyType == typeof(int)) id = (await conn.GetConnection(true).QueryAsync<int>(sql, this)).Single();
-                else if (primaryKey.PropertyType == typeof(long)) id = (await conn.GetConnection(true).QueryAsync<long>(sql, this)).Single();
-                if (dispose) conn.Dispose();
+                var primaryKey = GetPrimaryKeyPropertyInfo();
+                var primaryKeyColumn = GetPrimaryKeyColumnName();
+                var primaryKeyIsNumeric =
+                    primaryKey.PropertyType == typeof(byte) ||
+                    primaryKey.PropertyType == typeof(short) ||
+                    primaryKey.PropertyType == typeof(int) ||
+                    primaryKey.PropertyType == typeof(long);
+                var primaryKeyIsUnsigned =
+                    primaryKey.PropertyType == typeof(ushort) ||
+                    primaryKey.PropertyType == typeof(uint) ||
+                    primaryKey.PropertyType == typeof(ulong);
+                var primaryKeyIsFloatingNumber =
+                    primaryKey.PropertyType == typeof(float) ||
+                    primaryKey.PropertyType == typeof(double) ||
+                    primaryKey.PropertyType == typeof(decimal);
+                var scopeIdentitySql = conn.Helper.ScopeIdentity(primaryKey.PropertyType, primaryKeyColumn, primaryKeyIsNumeric || primaryKeyIsUnsigned || primaryKeyIsFloatingNumber);
+                if (!string.IsNullOrEmpty(scopeIdentitySql))
+                {
+                    if (primaryKeyIsNumeric)
+                    {
+                        var id = (await conn.GetConnection(true).QueryAsync<long>(scopeIdentitySql, this)).Single();
+                        primaryKey.SetValue(this, id);
+                    }
+                    else if (primaryKeyIsUnsigned)
+                    {
+                        var id = (await conn.GetConnection(true).QueryAsync<ulong>(scopeIdentitySql, this)).Single();
+                        primaryKey.SetValue(this, id);
+                    }
+                    else if (primaryKeyIsFloatingNumber)
+                    {
+                        var id = (await conn.GetConnection(true).QueryAsync<decimal>(scopeIdentitySql, this)).Single();
+                        primaryKey.SetValue(this, id);
+                    }
+                    else if (primaryKey.PropertyType == typeof(string) || primaryKey.PropertyType == typeof(Guid))
+                    {
+                        var id = (await conn.GetConnection(true).QueryAsync<string>(scopeIdentitySql, this)).Single();
+                        primaryKey.SetValue(this, id);
+                    }
+                }
             }
-            else
-            {
-                await conn.GetConnection(true).QueryAsync(sql, this);
-                if (dispose) conn.Dispose();
-            }
+
+            // Dispose
+            if (dispose) conn.Dispose();
         }
 
         public void Delete(INanoDatabase db) => this.DeleteAsync(db).Wait();
@@ -306,26 +340,20 @@ namespace Nanocode.Database
                 if (primaryKeyValue != null)
                 {
                     if (primaryKeyValue is int) isDefault = EqualityComparer<int>.Default.Equals((int)primaryKeyValue, default);
-                    if (primaryKeyValue is int?) isDefault = EqualityComparer<int?>.Default.Equals((int?)primaryKeyValue, default);
-                    if (primaryKeyValue is long) isDefault = EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default);
-                    if (primaryKeyValue is long?) isDefault = EqualityComparer<long?>.Default.Equals((long?)primaryKeyValue, default);
-                    if (primaryKeyValue is Guid) isDefault = EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
-                    if (primaryKeyValue is Guid?) isDefault = EqualityComparer<Guid?>.Default.Equals((Guid?)primaryKeyValue, default);
-                    if (primaryKeyValue is string) isDefault = EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default);
+                    else if (primaryKeyValue is int?) isDefault = EqualityComparer<int?>.Default.Equals((int?)primaryKeyValue, default);
+                    else if (primaryKeyValue is long) isDefault = EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default);
+                    else if (primaryKeyValue is long?) isDefault = EqualityComparer<long?>.Default.Equals((long?)primaryKeyValue, default);
+                    else if (primaryKeyValue is Guid) isDefault = EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
+                    else if (primaryKeyValue is Guid?) isDefault = EqualityComparer<Guid?>.Default.Equals((Guid?)primaryKeyValue, default);
+                    else if (primaryKeyValue is string) isDefault = EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default);
                 }
 
-                // Insert
                 if (isNull || isDefault) return this.SqlCommandForInsert(db);
-
-                // Update
                 else return this.SqlCommandForUpdate(db);
             }
             else
             {
-                // Insert
                 if (this._flagForManualId) return this.SqlCommandForInsert(db);
-
-                // Update
                 else return this.SqlCommandForUpdate(db);
             }
         }
@@ -339,7 +367,7 @@ namespace Nanocode.Database
             // Action
             var columnNames = new List<string>();
             var columnValues = new List<string>();
-            var primaryKey = GetPrimaryKeyColumnName();
+            var primaryKeyColumn = GetPrimaryKeyColumnName();
             var primaryKeyOptions = GetPrimaryKeyOptions();
 
             foreach (var pi in this.GetType().GetProperties())
@@ -348,14 +376,19 @@ namespace Nanocode.Database
                 if (pi.Name == "Item")
                     continue;
 
-                // Check Point
-                if (primaryKeyOptions.AutoIncrement && primaryKey == pi.Name)
-                    continue;
-
                 // Check Column Options
                 var columnOptions = GetColumnOptions(pi);
                 var ignore = columnOptions != null && columnOptions.IgnoreOnInsert;
                 if (ignore) continue;
+
+                // Check Point
+                if (primaryKeyOptions.AutoIncrement)
+                {
+                    if (columnOptions != null && columnOptions.ColumnName == primaryKeyColumn)
+                        continue;
+                    else if (columnOptions == null && pi.Name == primaryKeyColumn)
+                        continue;
+                }
 
                 // Add to lists
                 columnNames.Add(db.Helper.Quote(GetDatabaseColumnName(pi)));

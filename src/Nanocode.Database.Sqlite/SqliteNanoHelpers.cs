@@ -14,7 +14,7 @@ namespace Nanocode.Database.Sqlite
             return $"{QuoteLeft}{data}{QuoteRight}";
         }
 
-        public string ScopeIdentity(Type type)
+        public string ScopeIdentity(Type type, string columnName, bool isNumeric)
         {
             if (type == typeof(int)) return " SELECT CAST(SCOPE_IDENTITY() AS INT) ";
             if (type == typeof(long)) return " SELECT CAST(SCOPE_IDENTITY() AS BIGINT) ";

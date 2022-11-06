@@ -14,7 +14,7 @@ namespace Nanocode.Database.MySql
             return $"{QuoteLeft}{data}{QuoteRight}";
         }
 
-        public string ScopeIdentity(Type type)
+        public string ScopeIdentity(Type type, string columnName, bool isNumeric)
         {
             return " SELECT LAST_INSERT_ID() ";
         }
