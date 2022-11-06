@@ -16,7 +16,7 @@ namespace Nanocode.Database.Oracle
 
         public string ScopeIdentity(Type type)
         {
-           throw new NotImplementedException();
+            return string.Empty;
         }
     }
 

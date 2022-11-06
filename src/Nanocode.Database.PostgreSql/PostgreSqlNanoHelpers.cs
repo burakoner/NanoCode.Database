@@ -16,7 +16,7 @@ namespace Nanocode.Database.PostgreSql
 
         public string ScopeIdentity(Type type)
         {
-            throw new NotImplementedException();
+            return string.Empty;
         }
     }
 
