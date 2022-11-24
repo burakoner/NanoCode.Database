@@ -19,7 +19,7 @@ namespace Nanocode.Database
         #endregion
 
         #region Attribute Properties
-        internal static string GetTableName()
+        public static string GetTableName()
         {
             // Action
             var tableName = typeof(TEntity).GetAttributeValue((NanoTableAttribute attr) => attr.TableName);
@@ -64,7 +64,7 @@ namespace Nanocode.Database
             => GetPrimaryKey().Info;
         internal static NanoPrimaryKeyOptions GetPrimaryKeyOptions()
             => GetPrimaryKey().Options;
-        internal static string GetPrimaryKeyColumnName()
+        public static string GetPrimaryKeyColumnName()
             => GetDatabaseColumnName(GetPrimaryKeyPropertyInfo());
 
         internal static NanoTableColumnOptions GetColumnOptions(PropertyInfo pi)
@@ -82,7 +82,7 @@ namespace Nanocode.Database
             // Return
             return null;
         }
-        internal static string GetDatabaseColumnName(PropertyInfo pi)
+        public static string GetDatabaseColumnName(PropertyInfo pi)
         {
             if (pi == null) return string.Empty;
 
@@ -242,15 +242,18 @@ namespace Nanocode.Database
                 throw new Exception("Database connection is null or invalid!");
 
             // Get Sql Query
-            var sql = this.SqlCommandForSaving(db);
+            var sql = this.SqlCommandForSave(db);
             if (string.IsNullOrEmpty(sql))
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
-            // Execute
-            await conn.GetConnection(true).QueryAsync(sql, this);
-
             // Scope Identity
             var pkOptions = GetPrimaryKeyOptions();
+
+            // Execute
+            var wait = (!pkOptions.AutoIncrement && !dispose);
+            await conn.GetConnection(true).QueryAsync(sql, this).ConfigureAwait(wait);
+
+            // Scope Identity
             if (pkOptions.AutoIncrement)
             {
                 var primaryKey = GetPrimaryKeyPropertyInfo();
@@ -314,13 +317,13 @@ namespace Nanocode.Database
                 throw new Exception($"Sql command is invalid. Check {nameof(NanoTableAttribute)} {nameof(NanoTableAttribute.TableName)} and {nameof(NanoPrimaryKeyAttribute)} attributes");
 
             // Execute
-            await conn.GetConnection(true).ExecuteAsync(sql, this);
+            await conn.GetConnection(true).ExecuteAsync(sql, this).ConfigureAwait(dispose);
             if (dispose) conn.Dispose();
         }
         #endregion
 
         #region Sql Commands
-        private string SqlCommandForSaving(INanoDatabase db)
+        private string SqlCommandForSave(INanoDatabase db)
         {
             // Check Point
             if (string.IsNullOrEmpty(GetTableName())) return string.Empty;
@@ -407,7 +410,7 @@ namespace Nanocode.Database
 
             // Action
             var columns = new List<string>();
-            var primaryKey = GetPrimaryKeyColumnName();
+            var primaryKey = GetPrimaryKey();
             var primaryKeyColumn = string.Empty;
             var primaryKeyProperty = string.Empty;
             foreach (var pi in this.GetType().GetProperties())
@@ -417,7 +420,7 @@ namespace Nanocode.Database
                     continue;
 
                 // Check Point
-                if (primaryKey == pi.Name)
+                if (primaryKey.Info.Name == pi.Name)
                 {
                     primaryKeyColumn = GetDatabaseColumnName(pi);
                     primaryKeyProperty = $"@{pi.Name}";

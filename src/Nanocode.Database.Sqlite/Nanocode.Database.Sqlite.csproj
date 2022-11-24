@@ -8,10 +8,10 @@
 	<PropertyGroup>
 		<PackageId>Nanocode.Database.Sqlite</PackageId>
 		<Authors>Burak Öner</Authors>
-		<Version>1.5.8</Version>
-		<FileVersion>1.5.8</FileVersion>
-		<PackageVersion>1.5.8</PackageVersion>
-		<AssemblyVersion>1.5.8</AssemblyVersion>
+		<Version>1.6.0</Version>
+		<FileVersion>1.6.0</FileVersion>
+		<PackageVersion>1.6.0</PackageVersion>
+		<AssemblyVersion>1.6.0</AssemblyVersion>
 		<Description>Faster ORM tools using Dapper, SqlKata and low-level implementations</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageTags>Nanocode;Database;ORM;EF;Entity;Dapper;Mapper;Sql;SqlServer;MsSql;Oracle;Postgre;PostgreSql;Sqlite;MySql;Redis</PackageTags>
@@ -19,7 +19,7 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageReleaseNotes>
-			Version 1.5.8 - 06 Nov 2022
+			Version 1.6.0 - 24 Nov 2022
 		</PackageReleaseNotes>
 		<PackageIcon>Nanocode.png</PackageIcon>
 		<PackageIconUrl />
@@ -28,7 +28,7 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Nanocode.Database" Version="1.5.8" />
+		<PackageReference Include="Nanocode.Database" Version="1.6.0" />
 		<PackageReference Include="System.Data.SQLite" Version="1.0.116" />
 	</ItemGroup>
 
