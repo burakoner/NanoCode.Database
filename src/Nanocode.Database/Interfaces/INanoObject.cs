@@ -7,8 +7,6 @@ namespace Nanocode.Database.Interfaces
     {
         object this[string propertyName] { get; set; }
 
-        void SetIdentity(object value);
-
         string JsonExport();
         void JsonImport(string jsonObject);
 
@@ -17,5 +15,7 @@ namespace Nanocode.Database.Interfaces
 
         void Delete(INanoDatabase db);
         Task DeleteAsync(INanoDatabase db);
+
+        void SetDatabaseStatus(bool exists);
     }
 }

@@ -2,12 +2,10 @@
 using Nanocode.Database.Interfaces;
 using Nanocode.Database.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Nanocode.Database
@@ -15,7 +13,7 @@ namespace Nanocode.Database
     public abstract class NanoObject<TEntity> : INanoObject
     {
         #region Flags
-        private bool _flagForManualId = false;
+        private bool? _existOnDatabase = null;
         #endregion
 
         #region Attribute Properties
@@ -28,9 +26,20 @@ namespace Nanocode.Database
             // Return
             return tableName;
         }
+        public static string GetDatabaseColumnName(PropertyInfo pi)
+        {
+            if (pi == null) return string.Empty;
+
+            var columnOptions = GetColumnOptions(pi);
+            if (columnOptions == null) return pi.Name;
+            if (string.IsNullOrWhiteSpace(columnOptions.ColumnName)) return pi.Name;
+
+            return columnOptions.ColumnName;
+        }
+        public static string GetPrimaryKeyColumnName() => GetDatabaseColumnName(GetPrimaryKeyPropertyInfo());
+
         internal static INanoCredentials GetDatabaseCredentials()
             => typeof(TEntity).GetAttributeValue((NanoCredentialsAttribute attr) => attr.Credentials);
-
         internal static (PropertyInfo Info, NanoPrimaryKeyOptions Options) GetPrimaryKey()
         {
             foreach (var pi in typeof(TEntity).GetProperties())
@@ -60,13 +69,8 @@ namespace Nanocode.Database
             // Return
             return (null, null);
         }
-        internal static PropertyInfo GetPrimaryKeyPropertyInfo()
-            => GetPrimaryKey().Info;
-        internal static NanoPrimaryKeyOptions GetPrimaryKeyOptions()
-            => GetPrimaryKey().Options;
-        public static string GetPrimaryKeyColumnName()
-            => GetDatabaseColumnName(GetPrimaryKeyPropertyInfo());
-
+        internal static PropertyInfo GetPrimaryKeyPropertyInfo() => GetPrimaryKey().Info;
+        internal static NanoPrimaryKeyOptions GetPrimaryKeyOptions() => GetPrimaryKey().Options;
         internal static NanoTableColumnOptions GetColumnOptions(PropertyInfo pi)
         {
             // Find Correct Property and Set
@@ -82,17 +86,6 @@ namespace Nanocode.Database
             // Return
             return null;
         }
-        public static string GetDatabaseColumnName(PropertyInfo pi)
-        {
-            if (pi == null) return string.Empty;
-
-            var columnOptions = GetColumnOptions(pi);
-            if (columnOptions == null) return pi.Name;
-            if (string.IsNullOrWhiteSpace(columnOptions.ColumnName)) return pi.Name;
-
-            return columnOptions.ColumnName;
-        }
-
         internal static (INanoDatabase Conn, bool Dispose) GetConnection(INanoDatabase db)
         {
             // NanoDatabase Connection
@@ -134,7 +127,7 @@ namespace Nanocode.Database
         #region Constructor
         public NanoObject()
         {
-            SetDefaultValues();
+            this.SetDefaultValues();
         }
 
         public NanoObject(INanoDatabase db, object primaryKeyValue)
@@ -158,6 +151,7 @@ namespace Nanocode.Database
 
             // Mapping
             EntityMapper(data);
+            _existOnDatabase = true;
         }
         #endregion
 
@@ -215,22 +209,6 @@ namespace Nanocode.Database
         #endregion
 
         #region Public Methods
-        public void SetIdentity(object value)
-        {
-            // Primary Key
-            var pi = GetPrimaryKeyPropertyInfo();
-
-            // Check Point
-            if (pi == null) return;
-            if (pi.PropertyType != value.GetType()) return;
-
-            // Set Value
-            pi.SetValue(this, value);
-
-            // Flag
-            this._flagForManualId = true;
-        }
-
         public void SaveChanges(INanoDatabase db) => SaveChangesAsync(db).Wait();
         public async Task SaveChangesAsync(INanoDatabase db)
         {
@@ -271,7 +249,11 @@ namespace Nanocode.Database
                     primaryKey.PropertyType == typeof(float) ||
                     primaryKey.PropertyType == typeof(double) ||
                     primaryKey.PropertyType == typeof(decimal);
-                var scopeIdentitySql = conn.Helper.ScopeIdentity(primaryKey.PropertyType, primaryKeyColumn, primaryKeyIsNumeric || primaryKeyIsUnsigned || primaryKeyIsFloatingNumber);
+                var primaryKeyIsString =
+                    primaryKey.PropertyType == typeof(Guid) ||
+                    primaryKey.PropertyType == typeof(string);
+                var scopeIdentitySql = conn.Helper.ScopeIdentity(primaryKey.PropertyType, primaryKeyColumn, 
+                    primaryKeyIsNumeric || primaryKeyIsUnsigned || primaryKeyIsFloatingNumber || primaryKeyIsString);
                 if (!string.IsNullOrEmpty(scopeIdentitySql))
                 {
                     if (primaryKeyIsNumeric)
@@ -289,13 +271,16 @@ namespace Nanocode.Database
                         var id = (await conn.GetConnection(true).QueryAsync<decimal>(scopeIdentitySql, this)).Single();
                         primaryKey.SetValue(this, id);
                     }
-                    else if (primaryKey.PropertyType == typeof(string) || primaryKey.PropertyType == typeof(Guid))
+                    else if (primaryKeyIsString)
                     {
                         var id = (await conn.GetConnection(true).QueryAsync<string>(scopeIdentitySql, this)).Single();
                         primaryKey.SetValue(this, id);
                     }
                 }
             }
+
+            // Set Flag
+            this._existOnDatabase = true;
 
             // Dispose
             if (dispose) conn.Dispose();
@@ -320,6 +305,11 @@ namespace Nanocode.Database
             await conn.GetConnection(true).ExecuteAsync(sql, this).ConfigureAwait(dispose);
             if (dispose) conn.Dispose();
         }
+
+        public void SetDatabaseStatus(bool exists)
+        {
+            this._existOnDatabase = exists;
+        }
         #endregion
 
         #region Sql Commands
@@ -329,6 +319,12 @@ namespace Nanocode.Database
             if (string.IsNullOrEmpty(GetTableName())) return string.Empty;
             if (string.IsNullOrEmpty(GetPrimaryKeyColumnName())) return string.Empty;
 
+            // Check Point
+            if (_existOnDatabase.HasValue)
+                return _existOnDatabase.Value
+                    ? this.SqlCommandForUpdate(db)
+                    : this.SqlCommandForInsert(db);
+
             // Action
             var primaryKey = GetPrimaryKeyColumnName();
             var primaryKeyProperty = GetPrimaryKeyPropertyInfo();
@@ -336,28 +332,30 @@ namespace Nanocode.Database
             var primaryKeyValue = primaryKeyProperty.GetValue(this);
             var primaryKeyOptions = GetPrimaryKeyOptions();
 
+            var isNull = primaryKeyValue == null;
+            var isDefault = false;
+            if (primaryKeyValue != null)
+            {
+                if (primaryKeyValue is int) isDefault = EqualityComparer<int>.Default.Equals((int)primaryKeyValue, default);
+                else if (primaryKeyValue is int?) isDefault = EqualityComparer<int?>.Default.Equals((int?)primaryKeyValue, default);
+                else if (primaryKeyValue is long) isDefault = EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default);
+                else if (primaryKeyValue is long?) isDefault = EqualityComparer<long?>.Default.Equals((long?)primaryKeyValue, default);
+                else if (primaryKeyValue is Guid) isDefault = EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
+                else if (primaryKeyValue is Guid?) isDefault = EqualityComparer<Guid?>.Default.Equals((Guid?)primaryKeyValue, default);
+                else if (primaryKeyValue is string) isDefault = EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default);
+            }
+
             if (primaryKeyOptions.AutoIncrement)
             {
-                var isNull = primaryKeyValue == null;
-                var isDefault = false;
-                if (primaryKeyValue != null)
-                {
-                    if (primaryKeyValue is int) isDefault = EqualityComparer<int>.Default.Equals((int)primaryKeyValue, default);
-                    else if (primaryKeyValue is int?) isDefault = EqualityComparer<int?>.Default.Equals((int?)primaryKeyValue, default);
-                    else if (primaryKeyValue is long) isDefault = EqualityComparer<long>.Default.Equals((long)primaryKeyValue, default);
-                    else if (primaryKeyValue is long?) isDefault = EqualityComparer<long?>.Default.Equals((long?)primaryKeyValue, default);
-                    else if (primaryKeyValue is Guid) isDefault = EqualityComparer<Guid>.Default.Equals((Guid)primaryKeyValue, default);
-                    else if (primaryKeyValue is Guid?) isDefault = EqualityComparer<Guid?>.Default.Equals((Guid?)primaryKeyValue, default);
-                    else if (primaryKeyValue is string) isDefault = EqualityComparer<string>.Default.Equals((string)primaryKeyValue, default);
-                }
-
-                if (isNull || isDefault) return this.SqlCommandForInsert(db);
-                else return this.SqlCommandForUpdate(db);
+                return isNull || isDefault
+                    ? this.SqlCommandForInsert(db)
+                    : this.SqlCommandForUpdate(db);
             }
             else
             {
-                if (this._flagForManualId) return this.SqlCommandForInsert(db);
-                else return this.SqlCommandForUpdate(db);
+                return isNull || isDefault
+                   ? this.SqlCommandForInsert(db)
+                   : this.SqlCommandForUpdate(db);
             }
         }
 
@@ -389,7 +387,7 @@ namespace Nanocode.Database
                 {
                     if (columnOptions != null && columnOptions.ColumnName == primaryKeyColumn)
                         continue;
-                    else if (columnOptions == null && pi.Name == primaryKeyColumn)
+                    if (columnOptions == null && pi.Name == primaryKeyColumn)
                         continue;
                 }
 
@@ -496,10 +494,9 @@ namespace Nanocode.Database
         }
         #endregion
 
-        #region Static Properties
+        #region Static Properties & Methods
         public static NanoProperties<TEntity> Properties { get { return new NanoProperties<TEntity>(); } }
         public static NanoSqlBuilder<TEntity> CreateSqlBuilder(INanoDatabase db) => new NanoSqlBuilder<TEntity>(db);
-        #endregion
 
         public static List<TEntity> GetAllRows(INanoDatabase db) => GetAllRowsAsync(db).Result;
         public static async Task<List<TEntity>> GetAllRowsAsync(INanoDatabase db)
@@ -520,191 +517,6 @@ namespace Nanocode.Database
             // Return
             return data;
         }
-
-#if FALSE
-        #region Static Methods
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="db"></param>
-        /// <param name="query">"SELECT TABLENAME.* FROM TABLENAME "'den sonra eklenebilecek her türlü sorgu (Where, Order By, Join vs). Örnek: WHERE ID>100 AND ID<1000 ORDER BY ID</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static TEntity GetRow(INanoDatabase db, string query = "") => GetRowAsync(db, query).Result;
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="db"></param>
-        /// <param name="query">"SELECT TABLENAME.* FROM TABLENAME "'den sonra eklenebilecek her türlü sorgu (Where, Order By, Join vs). Örnek: WHERE ID>100 AND ID<1000 ORDER BY ID</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static async Task<TEntity> GetRowAsync(INanoDatabase db, string query = "")
-        {
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Build Sql Query
-            var sql = $"SELECT {db.Helper.Quote(GetTableName())}.* FROM {db.Helper.Quote(GetTableName())} ";
-            if (!string.IsNullOrEmpty(query)) sql += query;
-
-            // Get Entities
-            var data = await Conn.GetConnection(true).QueryFirstOrDefaultAsync<TEntity>(sql);
-            if (Dispose) Conn.Dispose();
-
-            // Return
-            return data;
-        }
-
-
-        public static TEntity GetRowById(INanoDatabase db, object id) => GetRowByIdAsync(db, id).Result;
-        public static async Task<TEntity> GetRowByIdAsync(INanoDatabase db, object id)
-        {
-            // Check Point
-            if (id == null) throw new Exception($"Primary Key value is null! Check {nameof(id)} parameter");
-
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Get Primary Key Properties
-            var primaryKey = GetPrimaryKeyPropertyInfo();
-            if (id.GetType() != primaryKey.PropertyType) throw new Exception($"Primary Key type is invalid! Check {nameof(id)} parameter");
-
-            // Build Sql Query
-            var primaryKeyColumnName = GetPrimaryKeyColumnName();
-            var sql = $"SELECT {db.Helper.Quote(GetTableName())}.* FROM {db.Helper.Quote(GetTableName())} WHERE {db.Helper.Quote(primaryKeyColumnName)}=@ID";
-
-            // Get Entity
-            var data = await Conn.GetConnection(true).QueryFirstOrDefaultAsync<TEntity>(sql, new { ID = id });
-            if (Dispose) Conn.Dispose();
-
-            // Return
-            return data;
-        }
-
-        public static List<TEntity> GetRowsByIds(INanoDatabase db, List<object> ids, int useInClauseLimit = 100) => GetRowsByIdsAsync(db, ids, useInClauseLimit).Result;
-        public static async Task<List<TEntity>> GetRowsByIdsAsync(INanoDatabase db, List<object> ids, int useInClauseLimit = 100)
-        {
-            // Check Point
-            if (ids == null) throw new Exception($"Primary Key value is null! Check {nameof(ids)} parameter");
-
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Get Primary Key Properties
-            var primaryKey = GetPrimaryKeyPropertyInfo();
-
-            // Check Point
-            foreach (var id in ids)
-                if (id.GetType() != primaryKey.PropertyType)
-                    throw new Exception($"Primary Key type is invalid! Check {nameof(ids)} parameter");
-
-            // Split ids into chunks
-            var idChunks = ids.ChunkBy(useInClauseLimit);
-
-            // Action
-            var returnList = new List<TEntity>();
-            var tableName = GetTableName();
-            var primaryKeyColumnName = GetPrimaryKeyColumnName();
-            foreach (var chunk in idChunks)
-            {
-                var sql = $"SELECT {db.Helper.Quote(tableName)}.* FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
-                var data = (await Conn.GetConnection(true).QueryAsync<TEntity>(sql, new { IDS = chunk })).ToList();
-                returnList.AddRange(data);
-            }
-
-            // Dispose Connection
-            if (Dispose) Conn.Dispose();
-
-            // Return
-            return returnList;
-        }
-
-        public static void DeleteRows(INanoDatabase db, string query) => DeleteRowsAsync(db, query).Wait();
-        public static async Task DeleteRowsAsync(INanoDatabase db, string query)
-        {
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Build Sql Query
-            var sql = $"DELETE FROM {db.Helper.Quote(GetTableName())} ";
-            if (!string.IsNullOrEmpty(query)) sql += query;
-
-            // Execute
-            await Conn.GetConnection(true).ExecuteAsync(sql);
-            if (Dispose) Conn.Dispose();
-        }
-
-        public static void DeleteRows(INanoDatabase db, List<NanoObject<TEntity>> entities, int useInClauseLimit = 100) => DeleteRowsAsync(db, entities, useInClauseLimit).Wait();
-        public static async Task DeleteRowsAsync(INanoDatabase db, List<NanoObject<TEntity>> entities, int useInClauseLimit = 100)
-        {
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Split entities into chunks
-            var entityChunks = entities.ChunkBy(useInClauseLimit);
-
-            // Action
-            var tableName = GetTableName();
-            var primaryKeyProperty = GetPrimaryKeyPropertyInfo();
-            var primaryKeyColumnName = GetPrimaryKeyColumnName();
-            foreach (var chunk in entityChunks)
-            {
-                var sql = $"DELETE FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
-                await Conn.GetConnection(true).ExecuteAsync(sql, new { IDS = chunk.Select(x => x[primaryKeyProperty.Name]) });
-            }
-
-            // Dispose Connection
-            if (Dispose) Conn.Dispose();
-        }
-
-        public static void DeleteByIds(INanoDatabase db, List<object> ids, int useInClauseLimit = 100) => DeleteByIdsAsync(db, ids, useInClauseLimit).Wait();
-        public static async Task DeleteByIdsAsync(INanoDatabase db, List<object> ids, int useInClauseLimit = 100)
-        {
-            // Get Connection
-            var (Conn, Dispose) = GetConnection(db);
-
-            // Check Point
-            if (Conn == null) throw new Exception("Database connection is null or invalid!");
-
-            // Get Primary Key Properties
-            var primaryKey = GetPrimaryKeyPropertyInfo();
-
-            // Check Point
-            foreach (var id in ids)
-                if (id.GetType() != primaryKey.PropertyType)
-                    throw new Exception($"Primary Key type is invalid! Check {nameof(ids)} parameter");
-
-            // Split ids into chunks
-            var idChunks = ids.ChunkBy(useInClauseLimit);
-
-            // Action
-            var tableName = GetTableName();
-            var primaryKeyColumnName = GetPrimaryKeyColumnName();
-            foreach (var chunk in idChunks)
-            {
-                var sql = $"DELETE FROM {db.Helper.Quote(tableName)} WHERE {db.Helper.Quote(primaryKeyColumnName)} IN @IDS";
-                await Conn.GetConnection(true).ExecuteAsync(sql, new { IDS = chunk });
-            }
-
-            // Dispose Connection
-            if (Dispose) Conn.Dispose();
-        }
         #endregion
-#endif
     }
 }

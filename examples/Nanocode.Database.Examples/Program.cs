@@ -1,5 +1,5 @@
-﻿using Nanocode.Database.PostgreSql;
-using Nanocode.Database.SqlServer;
+﻿using Nanocode.Database.SqlServer;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,17 @@ namespace Nanocode.Database.Examples
     {
         static void Main(string[] args)
         {
+            List<Asset> assets = new List<Asset>();
+            assets.Add(new Asset { ID = 1, NAME = "NAME-1", SYMBOL = "SYMBOL-1" });
+            assets.Add(new Asset { ID = 2, NAME = "NAME-2", SYMBOL = "SYMBOL-2" });
+            assets.Add(new Asset { ID = 3, NAME = "NAME-3", SYMBOL = "SYMBOL-3" });
+            assets.Add(new Asset { ID = 4, NAME = "NAME-4", SYMBOL = "SYMBOL-4" });
+            assets.Add(new Asset { ID = 5, NAME = "NAME-5", SYMBOL = "SYMBOL-5" });
+            var json = JsonConvert.SerializeObject(assets);
+            var assets2 = JsonConvert.DeserializeObject<List<Asset>>(json);
+
+
+
             /*
             NanoMapper.RegisterModels(Assembly.GetAssembly(typeof(Asset)));
             var conn = new AppConnections("Server=.; Database=NewCatalog; User Id=sa; Password=pa55w0Rd; MultipleActiveResultSets=true");
@@ -34,11 +45,11 @@ namespace Nanocode.Database.Examples
 
             //var creds = new SqlServerNanoCredentials("Server=localhost; Database=db; User Id=sa; Password=pa33w0Rd; MultipleActiveResultSets=true");
             //var conn = new SqlServerNanoDatabase(creds);
-            var creds = new PostgreSqlNanoCredentials("Host=localhost; Port=5432; User ID=postgres; Password=pa33w0Rd; Database=db; Pooling=true; Min Pool Size=0; Max Pool Size=100; Connection Lifetime=0;");
-            var conn = new PostgreSqlNanoDatabase(creds);
+            //var creds = new PostgreSqlNanoCredentials("Host=localhost; Port=5432; User ID=postgres; Password=pa33w0Rd; Database=db; Pooling=true; Min Pool Size=0; Max Pool Size=100; Connection Lifetime=0;");
+            //var conn = new PostgreSqlNanoDatabase(creds);
 
 
-
+            /*
             var builder = Asset.CreateSqlBuilder(conn);
             var abc = builder.Query
                 .Select("Id", "Name")
@@ -53,6 +64,7 @@ namespace Nanocode.Database.Examples
                 .Where(Asset.Properties.PrimaryColumnName, 1)
                 .Where(p03, "Active");
             var sqlResult2 = builder2.Compile();
+            */
 
 
 
